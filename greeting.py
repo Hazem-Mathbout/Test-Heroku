@@ -105,7 +105,7 @@ def scrapKhamsat(num:int):
     finalRes = json.dumps(listResult)
     return (finalRes)
 
-
+ 
 @app.route("/resMost", methods = ["POST" , "GET"])
 def scrapmostaql(budget_max = 10000, budget_min= 0.00, num_bage = 1):
     finalRes = {}
