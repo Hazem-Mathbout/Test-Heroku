@@ -1,3 +1,10 @@
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+import json
+import time as Ti
+import os
+
+
 from flask import Flask, request, jsonify
 app = Flask(__name__)
 
@@ -40,6 +47,63 @@ def post_something():
         return jsonify({
             "ERROR": "No name found. Please send a name."
         })
+
+@app.route("/result", methods = ["POST" , "GET"])
+def mainScrape():
+    output = request.get_json()
+    num = output["num"]
+    listResult = scrapKhamsat(num=num)
+    return (listResult)
+
+
+def scrapKhamsat(num:int):
+    finalRes = {}
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
+
+    chrome_options.add_argument("--window-size=1920,1080")
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--proxy-server='direct://'")
+    chrome_options.add_argument("--proxy-bypass-list=*")
+    chrome_options.add_argument("--start-maximized")
+    chrome_options.add_argument('--headless')
+    chrome_options.add_argument('--disable-gpu')
+    chrome_options.add_argument('--disable-dev-shm-usage')
+    chrome_options.add_argument('--no-sandbox')
+    chrome_options.add_argument('--ignore-certificate-errors')
+    chrome_options.add_argument('--allow-running-insecure-content')
+    user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.63 Safari/537.36'
+    chrome_options.add_argument(f'user-agent={user_agent}')
+
+ 
+    # driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()) , chrome_options=chrome_options)
+    driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chrome_options)
+
+    driver.implicitly_wait(10)
+    driver.maximize_window()
+    url = 'https://khamsat.com/community/requests'
+    driver.get(url)
+
+    for i in range(num):
+      try:  
+        elemnt = driver.switch_to.active_element
+        btn = elemnt.find_element(by=By.XPATH, value='//*[@id="community_loadmore_btn"]')
+        driver.execute_script("arguments[0].click();", btn)
+        Ti.sleep(2)
+      except Exception as e:
+        print (e)
+        break
+    listResult = []
+    results = driver.find_elements(by= By.CLASS_NAME ,value= "forum_post")
+    for res in results:
+        title = res.find_element(by= By.XPATH, value= './td[2]/h3').text
+        url = res.find_element(by= By.XPATH, value= './td[2]/h3/a').get_attribute('href')
+        time = res.find_element(by=By.XPATH, value= './td[2]/ul/li[2]/span').text
+        listResult.append({"title" : title , "url" : url , "time" : time})
+    # for res in listResult:
+    #     finalRes.update(res)
+    finalRes = json.dumps(listResult)
+    return (finalRes)
 
 
 @app.route('/')
