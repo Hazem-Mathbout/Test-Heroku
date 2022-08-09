@@ -109,9 +109,9 @@ def scrapKhamsat(num:int):
 @app.route("/resMost", methods = ["POST" , "GET"])
 def scrapmostaql():
     output = request.get_json()
-    budget_max = output["budget_max"]
-    budget_min = output["budget_min"]
-    num_bage = output["num_bage"]
+    budget_max = 10000 if output["budget_max"]=="None" else output["budget_max"]
+    budget_min = 0.00  if output["budget_min"]=="None" else output["budget_min"]
+    num_bage   = 1     if output["num_bage"]=="None" else output["num_bage"]
     category = output["category"]
 
     finalRes = {}
@@ -136,7 +136,6 @@ def scrapmostaql():
     driver = webdriver.Chrome(executable_path=os.environ.get("CHROMEDRIVER_PATH"), chrome_options=chrome_options)
     driver.implicitly_wait(10)
     driver.maximize_window()
-    # url = 'https://mostaql.com/projects?budget_max=10000&sort=latest'
     
     for page in range(num_bage):
         if category == "None" : 
@@ -145,9 +144,7 @@ def scrapmostaql():
             url = f"https://mostaql.com/projects?page={page+1}&category={category}&budget_min={budget_min}&budget_max={budget_max}&sort=latest"
         driver.get(url)
         tempRes = driver.find_elements(by= By.CLASS_NAME ,value= "project-row")
-        # results.append(tempRes)
 
-    # results = driver.find_elements(by= By.CLASS_NAME ,value= "project-row")
         for res in tempRes:
             title = res.find_element(by= By.XPATH, value= './td/div[1]/div[1]/h2/a').text 
             url = res.find_element(by= By.XPATH, value= './td/div[1]/div[1]/h2/a').get_attribute('href')
