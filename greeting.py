@@ -112,11 +112,10 @@ def scrapmostaql():
     budget_max = output["budget_max"]
     budget_min = output["budget_min"]
     num_bage = output["num_bage"]
-    
+    category = output["category"]
 
     finalRes = {}
     listResult = []
-    results = []
     chrome_options = webdriver.ChromeOptions()
     chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
     chrome_options.add_argument("--window-size=1920,1080")
@@ -140,7 +139,10 @@ def scrapmostaql():
     # url = 'https://mostaql.com/projects?budget_max=10000&sort=latest'
     
     for page in range(num_bage):
-        url = f"https://mostaql.com/projects?page={page+1}&budget_min={budget_min}&budget_max={budget_max}&sort=latest"
+        if category == "None" : 
+            url = f"https://mostaql.com/projects?page={page+1}&budget_min={budget_min}&budget_max={budget_max}&sort=latest"
+        else:
+            url = f"https://mostaql.com/projects?page={page+1}&category={category}&budget_min={budget_min}&budget_max={budget_max}&sort=latest"
         driver.get(url)
         tempRes = driver.find_elements(by= By.CLASS_NAME ,value= "project-row")
         # results.append(tempRes)
