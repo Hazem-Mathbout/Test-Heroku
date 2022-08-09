@@ -107,8 +107,16 @@ def scrapKhamsat(num:int):
 
  
 @app.route("/resMost", methods = ["POST" , "GET"])
-def scrapmostaql(budget_max = 10000, budget_min= 0.00, num_bage = 1):
+def scrapmostaql():
+    output = request.get_json()
+    budget_max = output["budget_max"]
+    budget_min = output["budget_min"]
+    num_bage = output["num_bage"]
+    
+
     finalRes = {}
+    listResult = []
+    results = []
     chrome_options = webdriver.ChromeOptions()
     chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
     chrome_options.add_argument("--window-size=1920,1080")
@@ -131,17 +139,18 @@ def scrapmostaql(budget_max = 10000, budget_min= 0.00, num_bage = 1):
     driver.maximize_window()
     # url = 'https://mostaql.com/projects?budget_max=10000&sort=latest'
     
-    url = f"https://mostaql.com/projects?page={num_bage}&budget_min={budget_min}&budget_max={budget_max}&sort=latest"
-    
-    driver.get(url)
-    
-    listResult = []
-    results = driver.find_elements(by= By.CLASS_NAME ,value= "project-row")
-    for res in results:
-        title = res.find_element(by= By.XPATH, value= './td/div[1]/div[1]/h2/a').text 
-        url = res.find_element(by= By.XPATH, value= './td/div[1]/div[1]/h2/a').get_attribute('href')
-        time = res.find_element(by=By.XPATH, value= './td/div[1]/div[1]/ul/li[2]/time ').text                                                                                  
-        listResult.append({"title" : title , "url" : url , "time" : time})    
+    for page in range(num_bage):
+        url = f"https://mostaql.com/projects?page={page+1}&budget_min={budget_min}&budget_max={budget_max}&sort=latest"
+        driver.get(url)
+        tempRes = driver.find_elements(by= By.CLASS_NAME ,value= "project-row")
+        # results.append(tempRes)
+
+    # results = driver.find_elements(by= By.CLASS_NAME ,value= "project-row")
+        for res in tempRes:
+            title = res.find_element(by= By.XPATH, value= './td/div[1]/div[1]/h2/a').text 
+            url = res.find_element(by= By.XPATH, value= './td/div[1]/div[1]/h2/a').get_attribute('href')
+            time = res.find_element(by=By.XPATH, value= './td/div[1]/div[1]/ul/li[2]/time ').text                                                                                  
+            listResult.append({"title" : title , "url" : url , "time" : time})    
     
     finalRes = json.dumps(listResult)
     return (finalRes)
