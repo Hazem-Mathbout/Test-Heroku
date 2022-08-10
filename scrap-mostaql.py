@@ -2,7 +2,6 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
-import time as Ti
 
 finalRes = {}
 num_bage = 1
@@ -29,18 +28,28 @@ driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()) , chr
 
 driver.implicitly_wait(10)
 driver.maximize_window()
-url = 'https://mostaql.com/projects?budget_max=10000&sort=latest'
 
-url = f"https://mostaql.com/projects?page={num_bage}&budget_min={budget_min}&budget_max={budget_max}&sort=latest"
+url = f"https://khamsat.com/community/requests"
 
 driver.get(url)
 
 listResult = []
-results = driver.find_elements(by= By.CLASS_NAME ,value= "project-row")
+results = driver.find_elements(by=By.CLASS_NAME, value='forum_post')
+print("=================")
+print(len(results))
+print("=================")
+
 for res in results:
-    title = res.find_element(by= By.XPATH, value= './td/div[1]/div[1]/h2/a').text 
-    url = res.find_element(by= By.XPATH, value= './td/div[1]/div[1]/h2/a').get_attribute('href')
-    time = res.find_element(by=By.XPATH, value= './td/div[1]/div[1]/ul/li[2]/time ').text                                                                                  
-    listResult.append({"title" : title , "url" : url , "time" : time})    
+    # title = res.find_element(by= By.XPATH, value= './div[1]/div[1]/div/a').text                                                                                                           
+    # url = res.find_element(by= By.XPATH, value= './div[1]/div[1]/div/a').get_attribute('href')
+    # time = res.find_element(by=By.XPATH, value= './div[1]/div[1]/div/div/span[1]').text
+    # status = res.find_element(by=By.XPATH, value= './div[1]/div[1]/div/a/span').text  
+    # price = res.find_element(by=By.XPATH, value= './div[1]/div[2]/p').text 
+    # number_of_offers = res.find_element(by=By.XPATH, value= './div[1]/div[1]/div/div/span[2]').text 
+    url_img = res.find_element(by=By.XPATH, value= './td[1]/a/img').get_attribute('src')
+    # listResult.append({"title" : title , "url" : url , "time" : time}) 
+    print(url_img)
+
+# print(listResult)   
 
 
