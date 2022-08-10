@@ -201,8 +201,8 @@ def scrapkafiil():
         driver.get(url)
         tempRes = driver.find_elements(by=By.CLASS_NAME, value='project-box')
         if len(tempRes) != 0 :
-            for res in tempRes:
-                title = res.find_element(by= By.XPATH, value= './div[1]/div[1]/div/a').text 
+            for res in tempRes: 
+                title = res.find_element(by= By.XPATH, value= './div[1]/div[1]/div/a').text.split(' ', 1)[1] 
                 url = res.find_element(by= By.XPATH, value= './div[1]/div[1]/div/a').get_attribute('href')
                 time = res.find_element(by=By.XPATH, value= './div[1]/div[1]/div/div/span[1]').text 
                 status = res.find_element(by=By.XPATH, value= './div[1]/div[1]/div/a/span').text
