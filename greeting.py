@@ -48,15 +48,16 @@ def post_something():
             "ERROR": "No name found. Please send a name."
         })
 
-@app.route("/result", methods = ["POST" , "GET"])
-def mainScrape():
+# def mainScrape():
+#     output = request.get_json()
+#     num = output["num"]
+#     listResult = scrapKhamsat(num=num)
+#     return (listResult)
+
+@app.route("/resKham", methods = ["POST" , "GET"])
+def scrapKhamsat():
     output = request.get_json()
     num = output["num"]
-    listResult = scrapKhamsat(num=num)
-    return (listResult)
-
-
-def scrapKhamsat(num:int):
     finalRes = {}
     chrome_options = webdriver.ChromeOptions()
     chrome_options.binary_location = os.environ.get("GOOGLE_CHROME_BIN")
