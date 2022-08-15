@@ -52,7 +52,7 @@ def post_something():
 #     output = request.get_json()
 #     num = output["num"]
 #     listResult = scrapKhamsat(num=num)
-#     return (listResult)
+#     return (listResult)   
 
 @app.route("/resKham", methods = ["POST" , "GET"])
 def scrapKhamsat():
@@ -102,7 +102,7 @@ def scrapKhamsat():
         time = res.find_element(by=By.XPATH, value= './td[2]/ul/li[2]/span').text
         url_img = res.find_element(by=By.XPATH, value= './td[1]/a/img').get_attribute('src')
                                  
-        listResult.append({"title" : title , "url" : url , "time" : time , "url_img" : url_img})
+        listResult.append({"title" : title , "url" : url , "time" : time , "status" : None , "price" : None , "number_of_offers" : None , "url_img" : url_img})
     # for res in listResult:
     #     finalRes.update(res)
     finalRes = json.dumps(listResult)
@@ -154,7 +154,7 @@ def scrapmostaql():
                 time = res.find_element(by=By.XPATH, value= './td/div[1]/div[1]/ul/li[2]/time ').text   
                 number_of_offers = res.find_element(by=By.XPATH, value= './td/div[1]/div[1]/ul/li[3]').text     
                                                                                                                                                                
-                listResult.append({"title" : title , "url" : url , "time" : time , "number_of_offers" : number_of_offers})
+                listResult.append({"title" : title , "url" : url , "time" : time , "status" : None , "price" : None , "number_of_offers" : number_of_offers , "url_img" : None})
         else:
             break    
     
