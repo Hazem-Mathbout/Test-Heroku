@@ -58,10 +58,12 @@
 # # for res in listResult:
 # #     finalRes.update(res)
 
+from cgitb import text
 from bs4 import BeautifulSoup
 import requests
+import html
 
-URL = f"https://khamsat.com/community/requests/600958-%D8%AA%D8%B9%D8%AF%D9%8A%D9%84-%D8%B9%D9%84%D9%89-%D9%85%D9%88%D9%82%D8%B9-%D9%88%D8%B1%D8%AF%D8%A8%D8%B1%D9%8A%D8%B3."
+URL = f"https://kafiil.com/kafiil/public/project/1288-%D8%AA%D8%B5%D9%85%D9%8A%D9%85-%D9%85%D9%86%D9%8A%D9%88-%D9%85%D8%AD%D9%84-%D8%AD%D9%84%D9%88%D9%8A%D8%A7%D8%AA-2"
 
 HEADERS = ({'User-Agent':
 			'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 \
@@ -70,10 +72,15 @@ HEADERS = ({'User-Agent':
 
 webpage = requests.get(URL, headers=HEADERS)
 soup = BeautifulSoup(webpage.content, "html.parser")
-# print(soup)
-# dom = etree.HTML(str(soup))
-content = soup.find(name= 'article' , attrs={"class" : "replace_urls"}).text
-number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].text
-publisher = soup.find(name='a' , attrs={"class" : "sidebar_user"}).text
-statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).text
-print(statusOfPublisher)
+
+content = soup.find(name= 'p' , attrs={"class" : ""}).text
+content = " ".join(content.split())
+# number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].find(name='h3').text
+publisher = soup.find(name='div' , attrs={"class" : "user-info-row"}).find('div').find('a').text
+publisher = " ".join(publisher.split())
+# statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).find(name='li').text
+# status = soup.find(name='bdi', attrs={"class" : "label label-prj-open"}).text
+# price = soup.find(name='span', attrs={"dir" : "rtl"}).text
+# url_img = soup.find(name='div' , attrs={"class" : "profile-card--avatar dsp--f small_avatar_container"}).find('img').get_attribute_list('src')[0]
+
+print(content) 
