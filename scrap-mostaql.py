@@ -81,23 +81,29 @@
 # status = soup.find(name='bdi', attrs={"class" : "label label-prj-open"}).text
 # price = soup.find(name='span', attrs={"dir" : "rtl"}).text
 # url_img = soup.find(name='div' , attrs={"class" : "profile-card--avatar dsp--f small_avatar_container"}).find('img').get_attribute_list('src')[0]
-import os
-import redis
-from rq import Worker, Queue, Connection
-from greeting import scrapKhamsat
 
-listen = ['high', 'default', 'low']
 
-redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379')
 
-conn = redis.from_url(redis_url)
 
-if __name__ == '__main__':
-    print("=============")
-    with Connection(conn):
-        worker = Worker(map(Queue, listen))
-        worker.work()
-        conn.close()
+
+
+# import os
+# import redis
+# from rq import Worker, Queue, Connection
+# from greeting import scrapKhamsat
+
+# listen = ['high', 'default', 'low']
+
+# redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379')
+
+# conn = redis.from_url(redis_url)
+
+# if __name__ == '__main__':
+#     print("=============")
+#     with Connection(conn):
+#         worker = Worker(map(Queue, listen))
+#         worker.work()
+#         conn.close()
 
 
 
