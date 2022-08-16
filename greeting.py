@@ -83,6 +83,7 @@ def scrapKhamsat():
 
     driver.implicitly_wait(10)
     driver.maximize_window()
+    copyDriver = driver
     url = 'https://khamsat.com/community/requests'
     driver.get(url)
 
@@ -105,12 +106,13 @@ def scrapKhamsat():
 
 
         # ####################################
-        driver.get(url)
+        
+        copyDriver.get(url)
         publisher = ""
         statusOfPublisher = ""
-        number_of_offers = driver.find_element(by=By.XPATH, value= '/html/body/div[2]/div/div[2]/div/div[3]/div[2]/div[3]/div[1]/h3').text
-        content = driver.find_element(by=By.CLASS_NAME, value='replace_urls').text
-        results_1 = driver.find_elements(by= By.CLASS_NAME ,value= "details-td.avatar-td__small-padding")
+        number_of_offers = copyDriver.find_element(by=By.XPATH, value= '/html/body/div[2]/div/div[2]/div/div[3]/div[2]/div[3]/div[1]/h3').text
+        content = copyDriver.find_element(by=By.CLASS_NAME, value='replace_urls').text
+        results_1 = copyDriver.find_elements(by= By.CLASS_NAME ,value= "details-td.avatar-td__small-padding")
         for res in results_1:
             publisher = res.find_element(by= By.XPATH, value= './h3').text
             statusOfPublisher = res.find_element(by=By.XPATH, value= './ul').text
