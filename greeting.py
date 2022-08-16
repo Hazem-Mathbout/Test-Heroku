@@ -5,6 +5,7 @@ import time as Ti
 import os
 
 
+
 from flask import Flask, request, jsonify
 app = Flask(__name__)
 
@@ -101,8 +102,22 @@ def scrapKhamsat():
         url = res.find_element(by= By.XPATH, value= './td[2]/h3/a').get_attribute('href')
         time = res.find_element(by=By.XPATH, value= './td[2]/ul/li[2]/span').text
         url_img = res.find_element(by=By.XPATH, value= './td[1]/a/img').get_attribute('src')
+
+
+        # ####################################
+        driver.get(url)
+        publisher = ""
+        statusOfPublisher = ""
+        number_of_offers = driver.find_element(by=By.XPATH, value= '/html/body/div[2]/div/div[2]/div/div[3]/div[2]/div[3]/div[1]/h3').text
+        content = driver.find_element(by=By.CLASS_NAME, value='replace_urls').text
+        results_1 = driver.find_elements(by= By.CLASS_NAME ,value= "details-td.avatar-td__small-padding")
+        for res in results_1:
+            publisher = res.find_element(by= By.XPATH, value= './h3').text
+            statusOfPublisher = res.find_element(by=By.XPATH, value= './ul').text
+        # ####################################
+
                                  
-        listResult.append({"title" : title , "url" : url , "time" : time , "status" : None , "price" : None , "number_of_offers" : None , "url_img" : url_img})
+        listResult.append({"publisher" : publisher , "statusOfPublisher" : statusOfPublisher ,  "webSiteName" : "خمسات" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : None , "price" : None , "number_of_offers" : number_of_offers , "url_img" : url_img})
     # for res in listResult:
     #     finalRes.update(res)
     finalRes = json.dumps(listResult)
@@ -152,9 +167,12 @@ def scrapmostaql():
                 title = res.find_element(by= By.XPATH, value= './td/div[1]/div[1]/h2/a').text 
                 url = res.find_element(by= By.XPATH, value= './td/div[1]/div[1]/h2/a').get_attribute('href')
                 time = res.find_element(by=By.XPATH, value= './td/div[1]/div[1]/ul/li[2]/time ').text   
-                number_of_offers = res.find_element(by=By.XPATH, value= './td/div[1]/div[1]/ul/li[3]').text     
+                number_of_offers = res.find_element(by=By.XPATH, value= './td/div[1]/div[1]/ul/li[3]').text
+                ########################################################
+                
+                ########################################################          
                                                                                                                                                                
-                listResult.append({"title" : title , "url" : url , "time" : time , "status" : None , "price" : None , "number_of_offers" : number_of_offers , "url_img" : None})
+                listResult.append({"publisher" : publisher , "statusOfPublisher" : statusOfPublisher ,  "webSiteName" : "مستقل" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : None , "price" : None , "number_of_offers" : number_of_offers , "url_img" : url_img})
         else:
             break    
     
