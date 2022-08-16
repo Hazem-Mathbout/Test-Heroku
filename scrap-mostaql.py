@@ -73,14 +73,13 @@ HEADERS = ({'User-Agent':
 webpage = requests.get(URL, headers=HEADERS)
 soup = BeautifulSoup(webpage.content, "html.parser")
 
-content = soup.find(name= 'p' , attrs={"class" : ""}).text
-content = " ".join(content.split())
+# content = soup.find(name= 'p' , attrs={"class" : ""}).text
+# content = " ".join(content.split())
 # number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].find(name='h3').text
-publisher = soup.find(name='div' , attrs={"class" : "user-info-row"}).find('div').find('a').text
-publisher = " ".join(publisher.split())
+# publisher = soup.find(name='div' , attrs={"class" : "user-info-row"}).find('div').find('a').text
+# publisher = " ".join(publisher.split())
 # statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).find(name='li').text
 # status = soup.find(name='bdi', attrs={"class" : "label label-prj-open"}).text
 # price = soup.find(name='span', attrs={"dir" : "rtl"}).text
 # url_img = soup.find(name='div' , attrs={"class" : "profile-card--avatar dsp--f small_avatar_container"}).find('img').get_attribute_list('src')[0]
-
-print(content) 
+ 

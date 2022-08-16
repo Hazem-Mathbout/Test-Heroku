@@ -3,7 +3,6 @@ from selenium.webdriver.common.by import By
 import json
 import time as Ti
 import os
-
 from bs4 import BeautifulSoup
 import requests
 
@@ -118,7 +117,7 @@ def scrapKhamsat():
         content = " ".join(content.split())
         number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].find(name='h3').text
         publisher = soup.find(name='a' , attrs={"class" : "sidebar_user"}).text
-        statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).find(name='li').text
+        statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).find(name='li').text.strip()
 
         # copyDriver.get(url)
         # publisher = ""
