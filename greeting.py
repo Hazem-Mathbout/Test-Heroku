@@ -115,9 +115,10 @@ def scrapKhamsat():
         webpage = requests.get(url, headers= HEADERS)
         soup = BeautifulSoup(webpage.content, "html.parser")
         content = soup.find(name= 'article' , attrs={"class" : "replace_urls"}).text
-        number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].text
+        content = " ".join(content.split())
+        number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].find(name='h3').text
         publisher = soup.find(name='a' , attrs={"class" : "sidebar_user"}).text
-        statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).text
+        statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).find(name='li').text
 
         # copyDriver.get(url)
         # publisher = ""
@@ -183,10 +184,17 @@ def scrapmostaql():
                 time = res.find_element(by=By.XPATH, value= './td/div[1]/div[1]/ul/li[2]/time ').text   
                 number_of_offers = res.find_element(by=By.XPATH, value= './td/div[1]/div[1]/ul/li[3]').text
                 ########################################################
-                
+                webpage = requests.get(url, headers= HEADERS)
+                soup = BeautifulSoup(webpage.content, "html.parser")
+                content = soup.find(name= 'div' , attrs={"class" : "text-wrapper-div carda__content"}).text
+                content = " ".join(content.split())
+                publisher = soup.find(name='h5' , attrs={"class" : "postcard__title profile__name mrg--an"}).find(name='bdi').text
+                status = soup.find(name='bdi', attrs={"class" : "label label-prj-open"}).text
+                price = soup.find(name='span', attrs={"dir" : "rtl"}).text
+                url_img = soup.find(name='div' , attrs={"class" : "profile-card--avatar dsp--f small_avatar_container"}).find('img').get_attribute_list('src')[0]
                 ########################################################          
                                                                                                                                                                
-                listResult.append({"publisher" : publisher , "statusOfPublisher" : statusOfPublisher ,  "webSiteName" : "مستقل" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : None , "price" : None , "number_of_offers" : number_of_offers , "url_img" : url_img})
+                listResult.append({"publisher" : publisher , "statusOfPublisher" : None ,  "webSiteName" : "مستقل" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : status , "price" : price , "number_of_offers" : number_of_offers , "url_img" : url_img})
         else:
             break    
     
@@ -246,7 +254,16 @@ def scrapkafiil():
                 price = res.find_element(by=By.XPATH, value= './div[1]/div[2]/p').text
                 number_of_offers = res.find_element(by=By.XPATH, value= './div[1]/div[1]/div/div/span[2]').text
                 url_img = res.find_element(by=By.XPATH, value= './div[1]/div[1]/a/img').get_attribute('src')
-                listResult.append({"title" : title , "url" : url , "time" : time , "status" : status , "price" : price , "number_of_offers" : number_of_offers , "url_img" : url_img})
+
+                #################################################
+                webpage = requests.get(url, headers= HEADERS)
+                soup = BeautifulSoup(webpage.content, "html.parser")
+                content = soup.find(name= 'p' , attrs={"class" : ""}).text
+                content = " ".join(content.split())
+                publisher = soup.find(name='div' , attrs={"class" : "user-info-row"}).find('div').find('a').text
+                publisher = " ".join(publisher.split())
+                #################################################
+                listResult.append({"publisher" : publisher , "statusOfPublisher" : None ,  "webSiteName" : "كفيل" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : status , "price" : price , "number_of_offers" : number_of_offers , "url_img" : url_img})
         else:
             break    
     
