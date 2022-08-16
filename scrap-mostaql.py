@@ -58,20 +58,19 @@
 # # for res in listResult:
 # #     finalRes.update(res)
 
-from cgitb import text
-from bs4 import BeautifulSoup
-import requests
-import html
+# from cgitb import text
+# from bs4 import BeautifulSoup
+# import requests
 
-URL = f"https://kafiil.com/kafiil/public/project/1288-%D8%AA%D8%B5%D9%85%D9%8A%D9%85-%D9%85%D9%86%D9%8A%D9%88-%D9%85%D8%AD%D9%84-%D8%AD%D9%84%D9%88%D9%8A%D8%A7%D8%AA-2"
+# URL = f"https://kafiil.com/kafiil/public/project/1288-%D8%AA%D8%B5%D9%85%D9%8A%D9%85-%D9%85%D9%86%D9%8A%D9%88-%D9%85%D8%AD%D9%84-%D8%AD%D9%84%D9%88%D9%8A%D8%A7%D8%AA-2"
 
-HEADERS = ({'User-Agent':
-			'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 \
-			(KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36',\
-			'Accept-Language': 'en-US, en;q=0.5'})
+# HEADERS = ({'User-Agent':
+# 			'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 \
+# 			(KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36',\
+# 			'Accept-Language': 'en-US, en;q=0.5'})
 
-webpage = requests.get(URL, headers=HEADERS)
-soup = BeautifulSoup(webpage.content, "html.parser")
+# webpage = requests.get(URL, headers=HEADERS)
+# soup = BeautifulSoup(webpage.content, "html.parser")
 
 # content = soup.find(name= 'p' , attrs={"class" : ""}).text
 # content = " ".join(content.split())
@@ -82,4 +81,22 @@ soup = BeautifulSoup(webpage.content, "html.parser")
 # status = soup.find(name='bdi', attrs={"class" : "label label-prj-open"}).text
 # price = soup.find(name='span', attrs={"dir" : "rtl"}).text
 # url_img = soup.find(name='div' , attrs={"class" : "profile-card--avatar dsp--f small_avatar_container"}).find('img').get_attribute_list('src')[0]
- 
+import os
+import redis
+from rq import Worker, Queue, Connection
+from greeting import scrapKhamsat
+
+listen = ['high', 'default', 'low']
+
+redis_url = os.getenv('REDIS_URL', 'redis://localhost:3306')
+
+conn = redis.from_url(redis_url)
+
+if __name__ == '__main__':
+    print("=============")
+    with Connection(conn):
+        worker = Worker(map(Queue, listen))
+        worker.work()
+
+
+
