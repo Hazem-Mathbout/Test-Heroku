@@ -59,18 +59,18 @@
 # #     finalRes.update(res)
 
 # from cgitb import text
-# from bs4 import BeautifulSoup
-# import requests
+from bs4 import BeautifulSoup
+import requests
 
-# URL = f"https://kafiil.com/kafiil/public/project/1288-%D8%AA%D8%B5%D9%85%D9%8A%D9%85-%D9%85%D9%86%D9%8A%D9%88-%D9%85%D8%AD%D9%84-%D8%AD%D9%84%D9%88%D9%8A%D8%A7%D8%AA-2"
+URL = f"https://kafiil.com/kafiil/public/project/678-%D9%83%D8%AA%D8%A7%D8%A8%D8%A9-%D9%85%D8%AD%D8%AA%D9%88%D9%89-%D8%B9%D9%84%D9%89-%D9%85%D9%88%D9%82%D8%B9-%D9%88%D9%88%D8%B1%D8%AF%D8%A8%D8%B1%D9%8A%D8%B3-%D8%A8%D8%A7%D9%84%D9%84%D8%BA%D8%A9-%D8%A7%D9%84%D8%B9%D8%B1%D8%A8%D9%8A%D8%A9"
 
-# HEADERS = ({'User-Agent':
-# 			'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 \
-# 			(KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36',\
-# 			'Accept-Language': 'en-US, en;q=0.5'})
+HEADERS = ({'User-Agent':
+			'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 \
+			(KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36',\
+			'Accept-Language': 'en-US, en;q=0.5'})
 
-# webpage = requests.get(URL, headers=HEADERS)
-# soup = BeautifulSoup(webpage.content, "html.parser")
+webpage = requests.get(URL, headers=HEADERS)
+soup = BeautifulSoup(webpage.content, "html.parser")
 
 # content = soup.find(name= 'p' , attrs={"class" : ""}).text
 # content = " ".join(content.split())
@@ -81,9 +81,8 @@
 # status = soup.find(name='bdi', attrs={"class" : "label label-prj-open"}).text
 # price = soup.find(name='span', attrs={"dir" : "rtl"}).text
 # url_img = soup.find(name='div' , attrs={"class" : "profile-card--avatar dsp--f small_avatar_container"}).find('img').get_attribute_list('src')[0]
-
-
-
+dateTime = soup.find(name= 'span', attrs={"data-toggle" : "tooltip"}).get_attribute_list('title')[0]
+print(dateTime)
 
 
 

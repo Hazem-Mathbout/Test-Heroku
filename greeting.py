@@ -118,7 +118,7 @@ def scrapKhamsat():
         number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].find(name='h3').text
         publisher = soup.find(name='a' , attrs={"class" : "sidebar_user"}).text
         statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).find(name='li').text.strip()
-
+        dateTime = soup.findAll(name= 'div', attrs={"class" : "col-6"})[1].find(name='span').get_attribute_list('title')[0]
         # copyDriver.get(url)
         # publisher = ""
         # statusOfPublisher = ""
@@ -131,7 +131,7 @@ def scrapKhamsat():
         # ####################################
 
                                  
-        listResult.append({"publisher" : publisher , "statusOfPublisher" : statusOfPublisher ,  "webSiteName" : "خمسات" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : None , "price" : None , "number_of_offers" : number_of_offers , "url_img" : url_img})
+        listResult.append({"dateTime" : dateTime ,"publisher" : publisher , "statusOfPublisher" : statusOfPublisher ,  "webSiteName" : "khamsat" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : None , "price" : None , "number_of_offers" : number_of_offers , "url_img" : url_img})
     # for res in listResult:
     #     finalRes.update(res)
     finalRes = json.dumps(listResult)
@@ -191,9 +191,10 @@ def scrapmostaql():
                 status = soup.find(name='bdi', attrs={"class" : "label label-prj-open"}).text
                 price = soup.find(name='span', attrs={"dir" : "rtl"}).text
                 url_img = soup.find(name='div' , attrs={"class" : "profile-card--avatar dsp--f small_avatar_container"}).find('img').get_attribute_list('src')[0]
+                dateTime = soup.find(name= 'td', attrs={"data-type" : "project-date"}).find(name='time').get_attribute_list('datetime')[0]
                 ########################################################          
                                                                                                                                                                
-                listResult.append({"publisher" : publisher , "statusOfPublisher" : None ,  "webSiteName" : "مستقل" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : status , "price" : price , "number_of_offers" : number_of_offers , "url_img" : url_img})
+                listResult.append({"dateTime" : dateTime , "publisher" : publisher , "statusOfPublisher" : None ,  "webSiteName" : "mostaql" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : status , "price" : price , "number_of_offers" : number_of_offers , "url_img" : url_img})
         else:
             break    
     
@@ -261,8 +262,9 @@ def scrapkafiil():
                 content = " ".join(content.split())
                 publisher = soup.find(name='div' , attrs={"class" : "user-info-row"}).find('div').find('a').text
                 publisher = " ".join(publisher.split())
+                dateTime = soup.find(name= 'span', attrs={"data-toggle" : "tooltip"}).get_attribute_list('title')[0]
                 #################################################
-                listResult.append({"publisher" : publisher , "statusOfPublisher" : None ,  "webSiteName" : "كفيل" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : status , "price" : price , "number_of_offers" : number_of_offers , "url_img" : url_img})
+                listResult.append({"dateTime" : dateTime , "publisher" : publisher , "statusOfPublisher" : None ,  "webSiteName" : "kafiil" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : status , "price" : price , "number_of_offers" : number_of_offers , "url_img" : url_img})
         else:
             break    
     
