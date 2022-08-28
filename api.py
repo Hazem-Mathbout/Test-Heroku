@@ -6,9 +6,9 @@ from flask import Flask, request, jsonify
 app = Flask(__name__)
 
 HEADERS = ({'User-Agent':
-			'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 \
-			(KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36',\
-			'Accept-Language': 'en-US, en;q=0.5'})
+            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 \
+            (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36',\
+            'Accept-Language': 'en-US, en;q=0.5'})
 
 
 @app.route('/getmsg/', methods=['GET'])
@@ -69,9 +69,9 @@ def scrapKhamsat():
         time = res.find('td', attrs={"class" : "details-td"}).find('ul').findAll('li')[1].find('span').text.strip()
         url_img = res.find('td', attrs={"class" : "avatar-td text-center"}).find('img').get_attribute_list('src')[0]
         if i+1 == len(results):
-	            postId = res.get('id').replace("forum_post-", "posts_ids%5B%5D=")
-	    else:
-		        postId = res.get('id').replace("forum_post-", "posts_ids%5B%5D=")+'&'
+                postId = res.get('id').replace("forum_post-", "posts_ids%5B%5D=")
+        else:
+                postId = res.get('id').replace("forum_post-", "posts_ids%5B%5D=")+'&'
 
 
         # ####################################
