@@ -96,7 +96,7 @@ def scrapKhamsat():
         elemnt = driver.switch_to.active_element
         btn = elemnt.find_element(by=By.XPATH, value='//*[@id="community_loadmore_btn"]')
         driver.execute_script("arguments[0].click();", btn)
-        Ti.sleep(2)
+        # Ti.sleep(2)
       except Exception as e:
         print (e)
         break
