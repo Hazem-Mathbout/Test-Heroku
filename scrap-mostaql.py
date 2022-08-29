@@ -113,11 +113,13 @@ HEADERS = ({'User-Agent':
 
 
 # ORIGN = f"https://khamsat.com"
-URL = "https://kafiil.com/kafiil/public/projects"
+URL = "https://mostaql.com/projects"
 webpage = requests.get(URL, headers=HEADERS)
 soup = BeautifulSoup(webpage.content, "html.parser")
-results = soup.findAll(name='div', attrs={"class" : "project-box active"})
-print(results[0].findAll('a')[1].text.split())
+results = soup.findAll(name='tr', attrs={"class" : "project-row"})
+res = results[0].find('time').text.strip()
+res = "".join(res.split())
+print(res)
 
 
 # .get_attribute_list('src')[0]

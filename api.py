@@ -116,7 +116,8 @@ def scrapmostaql():
         for res in tempRes:
             title = res.find('a').text
             url = res.find('a').get_attribute_list('href')[0]
-            time = res.find('time').text.strip()  
+            time = res.find('time').text.strip()
+            time = "".join(time.split())  
             number_of_offers = res.find('ul').findAll('li')[2].text.strip()
             ########################################################
             webpage2 = requests.get(url, headers= HEADERS)
