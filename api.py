@@ -109,28 +109,28 @@ def scrapmostaql():
         URL = f"https://mostaql.com/projects?page={num_bage}&budget_min={budget_min}&budget_max={budget_max}&sort=latest"
     else:
         URL = f"https://mostaql.com/projects?page={num_bage}&category={category}&budget_min={budget_min}&budget_max={budget_max}&sort=latest"
-        sourcPage = requests.get(URL, headers=HEADERS)
-        sourcSoup = BeautifulSoup(sourcPage.content, "html.parser")
-        tempRes = sourcSoup.findAll(name='tr', attrs={"class" : "project-row"})
-        if(len(tempRes) != 0):
-            for res in tempRes:
-                title = res.find('a').text
-                url = res.find('a').get_attribute_list('href')[0]
-                time = res.find('time').text.strip()  
-                number_of_offers = res.find('ul').findAll('li')[2].text.strip()
-                ########################################################
-                webpage2 = requests.get(url, headers= HEADERS)
-                soup = BeautifulSoup(webpage2.content, "html.parser")
-                content = soup.find(name= 'div' , attrs={"class" : "text-wrapper-div carda__content"}).text
-                content = " ".join(content.split())
-                publisher = soup.find(name='h5' , attrs={"class" : "postcard__title profile__name mrg--an"}).find(name='bdi').text
-                status = soup.find(name='bdi', attrs={"class" : "label label-prj-open"}).text
-                price = soup.find(name='span', attrs={"dir" : "rtl"}).text
-                url_img = soup.find(name='div' , attrs={"class" : "profile-card--avatar dsp--f small_avatar_container"}).find('img').get_attribute_list('src')[0]
-                dateTime = soup.find(name= 'td', attrs={"data-type" : "project-date"}).find(name='time').get_attribute_list('datetime')[0]
-                ########################################################          
-                                                                                                                                                               
-                listResult.append({"dateTime" : dateTime , "publisher" : publisher , "statusOfPublisher" : None ,  "webSiteName" : "mostaql" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : status , "price" : price , "number_of_offers" : number_of_offers , "url_img" : url_img})
+    sourcPage = requests.get(URL, headers=HEADERS)
+    sourcSoup = BeautifulSoup(sourcPage.content, "html.parser")
+    tempRes = sourcSoup.findAll(name='tr', attrs={"class" : "project-row"})
+    if(len(tempRes) != 0):
+        for res in tempRes:
+            title = res.find('a').text
+            url = res.find('a').get_attribute_list('href')[0]
+            time = res.find('time').text.strip()  
+            number_of_offers = res.find('ul').findAll('li')[2].text.strip()
+            ########################################################
+            webpage2 = requests.get(url, headers= HEADERS)
+            soup = BeautifulSoup(webpage2.content, "html.parser")
+            content = soup.find(name= 'div' , attrs={"class" : "text-wrapper-div carda__content"}).text
+            content = " ".join(content.split())
+            publisher = soup.find(name='h5' , attrs={"class" : "postcard__title profile__name mrg--an"}).find(name='bdi').text
+            status = soup.find(name='bdi', attrs={"class" : "label label-prj-open"}).text
+            price = soup.find(name='span', attrs={"dir" : "rtl"}).text
+            url_img = soup.find(name='div' , attrs={"class" : "profile-card--avatar dsp--f small_avatar_container"}).find('img').get_attribute_list('src')[0]
+            dateTime = soup.find(name= 'td', attrs={"data-type" : "project-date"}).find(name='time').get_attribute_list('datetime')[0]
+            ########################################################          
+                                                                                                                                                           
+            listResult.append({"dateTime" : dateTime , "publisher" : publisher , "statusOfPublisher" : None ,  "webSiteName" : "mostaql" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : status , "price" : price , "number_of_offers" : number_of_offers , "url_img" : url_img})
           
     
     finalRes = json.dumps(listResult)
