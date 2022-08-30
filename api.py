@@ -186,6 +186,48 @@ def scrapkafiil():
     return (finalRes)
 
 
+@app.route("/resLoadMoreKhamsat", methods = ["POST"])
+def scrapKhamsatLoadMore():
+    URL = "https://khamsat.com/ajax/load_more/community/requests"
+    ORIGN = f"https://khamsat.com"
+    output = request.get_json()
+    data   = output['data']
+    finalRes = {}
+    listResult = []
+    response = requests.post(URL, headers=HEADERS, data=data)    
+    body = response.json()
+    htmlString = body["content"]
+    sourcSoup = BeautifulSoup(htmlString, "html.parser")
+    results = sourcSoup.findAll(name='tr', attrs={"class" : "forum_post"})
+    for i, res in enumerate(results):
+        title = res.find('h3', attrs={"class" : "details-head"}).find('a').text
+        url = ORIGN + res.find('h3', attrs={"class" : "details-head"}).find('a').get_attribute_list('href')[0]
+        time = res.find('td', attrs={"class" : "details-td"}).find('ul').findAll('li')[1].find('span').text.strip()
+        url_img = res.find('td', attrs={"class" : "avatar-td text-center"}).find('img').get_attribute_list('src')[0]
+        if i+1 == len(results):
+                postId = res.get('id').replace("forum_post-", "posts_ids%5B%5D=")
+        else:
+                postId = res.get('id').replace("forum_post-", "posts_ids%5B%5D=")+'&'
+
+
+        # ####################################
+
+        webpage2 = requests.get(url, headers= HEADERS)
+        soup = BeautifulSoup(webpage2.content, "html.parser")
+        content = soup.find(name= 'article' , attrs={"class" : "replace_urls"}).text
+        content = " ".join(content.split())
+        number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].find(name='h3').text
+        publisher = soup.find(name='a' , attrs={"class" : "sidebar_user"}).text
+        statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).find(name='li').text.strip()
+        dateTime = soup.findAll(name= 'div', attrs={"class" : "col-6"})[1].find(name='span').get_attribute_list('title')[0]
+
+        #####################################
+                                 
+        listResult.append({"postId" :postId , "dateTime" : dateTime ,"publisher" : publisher , "statusOfPublisher" : statusOfPublisher ,  "webSiteName" : "khamsat" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : None , "price" : None , "number_of_offers" : number_of_offers , "url_img" : url_img})
+    # for res in listResult:
+    #     finalRes.update(res)
+    finalRes = json.dumps(listResult)
+    return (finalRes)
 
 
 @app.route('/')
