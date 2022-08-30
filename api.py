@@ -186,12 +186,12 @@ def scrapkafiil():
     return (finalRes)
 
 
-@app.route("/resLoadMoreKhamsat", methods = ["POST"])
+@app.route("/resLoadMoreKhamsat", methods = ["POST", "GET"])
 def scrapKhamsatLoadMore():
     URL = "https://khamsat.com/ajax/load_more/community/requests"
     ORIGN = f"https://khamsat.com"
     output = request.get_json()
-    data   = output['data']
+    data   = output["data"]
     finalRes = {}
     listResult = []
     response = requests.post(URL, headers=HEADERS, data=data)    
