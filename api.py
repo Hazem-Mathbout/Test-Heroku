@@ -1,3 +1,4 @@
+from email.policy import strict
 import json
 from bs4 import BeautifulSoup
 import requests
@@ -142,7 +143,8 @@ def scrapmostaql():
 
 @app.route("/resKafi", methods = ["POST" , "GET"])
 def scrapkafiil():
-    output = request.get_json()
+    # output = request.get_json()
+    output = json.loads(request.data, strict = False)
     num_bage   = 1 if output["num_bage"]=="None" else output["num_bage"]
     category = output["category"]
 
@@ -188,16 +190,18 @@ def scrapkafiil():
 
 @app.route("/resLoadMoreKhamsat", methods = ["POST", "GET"])
 def scrapKhamsatLoadMore():
+    output = json.loads(request.data, strict = False)
     URL = "https://khamsat.com/ajax/load_more/community/requests"
     ORIGN = f"https://khamsat.com"
-    output = request.get_json()
     data   = output["data"]
     finalRes = {}
     listResult = []
-    response = requests.post(URL, headers=HEADERS, data=data)    
+    response = requests.post(URL, headers=HEADERS, data=data)
+      
     body = response.json()
     htmlString = body["content"]
     sourcSoup = BeautifulSoup(htmlString, "html.parser")
+   
     results = sourcSoup.findAll(name='tr', attrs={"class" : "forum_post"})
     for i, res in enumerate(results):
         title = res.find('h3', attrs={"class" : "details-head"}).find('a').text
@@ -226,6 +230,7 @@ def scrapKhamsatLoadMore():
         listResult.append({"postId" :postId , "dateTime" : dateTime ,"publisher" : publisher , "statusOfPublisher" : statusOfPublisher ,  "webSiteName" : "khamsat" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : None , "price" : None , "number_of_offers" : number_of_offers , "url_img" : url_img})
     # for res in listResult:
     #     finalRes.update(res)
+   
     finalRes = json.dumps(listResult)
     return (finalRes)
 
