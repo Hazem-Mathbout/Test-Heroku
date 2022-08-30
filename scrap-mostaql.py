@@ -1,4 +1,3 @@
-from attr import attr
 from bs4 import BeautifulSoup
 from lxml import etree
 import requests
@@ -113,12 +112,12 @@ HEADERS = ({'User-Agent':
 
 
 # ORIGN = f"https://khamsat.com"
-URL = "https://mostaql.com/projects"
+URL = "https://kafiil.com/kafiil/public/projects?page=1&source=web"
 webpage = requests.get(URL, headers=HEADERS)
 soup = BeautifulSoup(webpage.content, "html.parser")
-results = soup.findAll(name='tr', attrs={"class" : "project-row"})
-res = results[0].find('time').text.strip()
-res = "".join(res.split())
+results = soup.findAll(name='div', attrs={"class" : "project-box active"})
+res = results[0].findAll('a')[1].get_attribute_list('href')[0]
+res = res.split('-')[0].split('/')[-1]
 print(res)
 
 

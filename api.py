@@ -119,6 +119,7 @@ def scrapmostaql():
             time = res.find('time').text.strip()
             time = "".join(time.split())  
             number_of_offers = res.find('ul').findAll('li')[2].text.strip()
+            postId = url.split('-')[0].split('/')[-1]
             ########################################################
             webpage2 = requests.get(url, headers= HEADERS)
             soup = BeautifulSoup(webpage2.content, "html.parser")
@@ -131,7 +132,7 @@ def scrapmostaql():
             dateTime = soup.find(name= 'td', attrs={"data-type" : "project-date"}).find(name='time').get_attribute_list('datetime')[0]
             ########################################################          
                                                                                                                                                            
-            listResult.append({"dateTime" : dateTime , "publisher" : publisher , "statusOfPublisher" : None ,  "webSiteName" : "mostaql" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : status , "price" : price , "number_of_offers" : number_of_offers , "url_img" : url_img})
+            listResult.append({"postId" : postId , "dateTime" : dateTime , "publisher" : publisher , "statusOfPublisher" : None ,  "webSiteName" : "mostaql" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : status , "price" : price , "number_of_offers" : number_of_offers , "url_img" : url_img})
           
     
     finalRes = json.dumps(listResult)
@@ -168,7 +169,7 @@ def scrapkafiil():
                 price = res.findAll('p')[0].text.strip()
                 number_of_offers = res.findAll('span')[2].text.strip()
                 url_img = res.find('img').get_attribute_list('src')[0]
-
+                postId = url.split('-')[0].split('/')[-1]
                 #################################################
                 webpage2 = requests.get(url, headers= HEADERS)
                 soup = BeautifulSoup(webpage2.content, "html.parser")
@@ -178,7 +179,7 @@ def scrapkafiil():
                 publisher = " ".join(publisher.split())
                 dateTime = soup.find(name= 'span', attrs={"data-toggle" : "tooltip"}).get_attribute_list('title')[0]
                 #################################################
-                listResult.append({"dateTime" : dateTime , "publisher" : publisher , "statusOfPublisher" : None ,  "webSiteName" : "kafiil" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : status , "price" : price , "number_of_offers" : number_of_offers , "url_img" : url_img})
+                listResult.append({"postId" : postId  , "dateTime" : dateTime , "publisher" : publisher , "statusOfPublisher" : None ,  "webSiteName" : "kafiil" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : status , "price" : price , "number_of_offers" : number_of_offers , "url_img" : url_img})
          
     
     finalRes = json.dumps(listResult)
