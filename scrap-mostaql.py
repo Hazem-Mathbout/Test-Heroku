@@ -116,18 +116,19 @@ URL = "https://khamsat.com/ajax/load_more/community/requests"
 
 data = "posts_ids%5B%5D=603969&posts_ids%5B%5D=603964&posts_ids%5B%5D=603957&posts_ids%5B%5D=603871&posts_ids%5B%5D=603697&posts_ids%5B%5D=603941&posts_ids%5B%5D=603965&posts_ids%5B%5D=603875&posts_ids%5B%5D=603849&posts_ids%5B%5D=603968&posts_ids%5B%5D=603959&posts_ids%5B%5D=603928&posts_ids%5B%5D=603919&posts_ids%5B%5D=603660&posts_ids%5B%5D=603951&posts_ids%5B%5D=602372&posts_ids%5B%5D=603972&posts_ids%5B%5D=603741&posts_ids%5B%5D=603447&posts_ids%5B%5D=603966&posts_ids%5B%5D=603930&posts_ids%5B%5D=603967&posts_ids%5B%5D=603730&posts_ids%5B%5D=603794&posts_ids%5B%5D=603958&posts_ids%5B%5D=603818&posts_ids%5B%5D=603735&posts_ids%5B%5D=603942&posts_ids%5B%5D=603764&posts_ids%5B%5D=603956&posts_ids%5B%5D=603920&posts_ids%5B%5D=603947&posts_ids%5B%5D=603948&posts_ids%5B%5D=603895&posts_ids%5B%5D=603883&posts_ids%5B%5D=603454&posts_ids%5B%5D=603520&posts_ids%5B%5D=603955&posts_ids%5B%5D=603679&posts_ids%5B%5D=603725&posts_ids%5B%5D=603699&posts_ids%5B%5D=603690&posts_ids%5B%5D=603650&posts_ids%5B%5D=603933&posts_ids%5B%5D=603932&posts_ids%5B%5D=603851&posts_ids%5B%5D=603275&posts_ids%5B%5D=603777&posts_ids%5B%5D=603187&posts_ids%5B%5D=603766"
 
+URL = "https://test-api-hroku.herokuapp.com/resLoadMoreKhamsat"
 
 
+response = requests.post(URL, headers=HEADERS, data={"data" : data})
+print(response)
+# body = response.json()
+# htmlString = body["content"] # string type
+# soup = BeautifulSoup(htmlString, "html.parser")
+# results = soup.findAll(name='tr', attrs={"class" : "forum_post"})
 
-response = requests.post(URL, headers=HEADERS, data=data)
-body = response.json()
-htmlString = body["content"] # string type
-soup = BeautifulSoup(htmlString, "html.parser")
-results = soup.findAll(name='tr', attrs={"class" : "forum_post"})
-
-res = results[0].find('h3', attrs={"class" : "details-head"}).find('a').get_attribute_list('href')[0]
-# res = res.split('-')[0].split('/')[-1]
-print(res)
+# res = results[0].find('h3', attrs={"class" : "details-head"}).find('a').get_attribute_list('href')[0]
+# # res = res.split('-')[0].split('/')[-1]
+# print(res)
 
 
 # .get_attribute_list('src')[0]
