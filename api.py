@@ -69,10 +69,7 @@ def scrapKhamsat():
         url = ORIGN + res.find('h3', attrs={"class" : "details-head"}).find('a').get_attribute_list('href')[0]
         time = res.find('td', attrs={"class" : "details-td"}).find('ul').findAll('li')[1].find('span').text.strip()
         url_img = res.find('td', attrs={"class" : "avatar-td text-center"}).find('img').get_attribute_list('src')[0]
-        if i+1 == len(results):
-                postId = res.get('id').replace("forum_post-", "posts_ids%5B%5D=")
-        else:
-                postId = res.get('id').replace("forum_post-", "posts_ids%5B%5D=")+'&'
+        postId = res.get('id').replace("forum_post-", "posts_ids%5B%5D=")
 
 
         # ####################################
@@ -208,10 +205,7 @@ def scrapKhamsatLoadMore():
         url = ORIGN + res.find('h3', attrs={"class" : "details-head"}).find('a').get_attribute_list('href')[0]
         time = res.find('td', attrs={"class" : "details-td"}).find('ul').findAll('li')[1].find('span').text.strip()
         url_img = res.find('td', attrs={"class" : "avatar-td text-center"}).find('img').get_attribute_list('src')[0]
-        if i+1 == len(results):
-                postId = res.get('id').replace("forum_post-", "posts_ids%5B%5D=")
-        else:
-                postId = res.get('id').replace("forum_post-", "posts_ids%5B%5D=")+'&'
+        postId = res.get('id').replace("forum_post-", "posts_ids%5B%5D=")
 
 
         # ####################################
