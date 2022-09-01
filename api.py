@@ -194,8 +194,11 @@ def scrapkafiil(output = None):
 
 
 @app.route("/resLoadMoreKhamsat", methods = ["POST", "GET"])
-def scrapKhamsatLoadMore():
-    output = json.loads(request.data, strict = False)
+def scrapKhamsatLoadMore(output = None):
+    try:
+        output = json.loads(request.data, strict = False)
+    except Exception as exc:
+        print(exc) 
     URL = "https://khamsat.com/ajax/load_more/community/requests"
     ORIGN = f"https://khamsat.com"
     dataLoadMore   = output["dataLoadMore"]
