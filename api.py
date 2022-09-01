@@ -256,7 +256,8 @@ def offersForHome():
             else:
                 allDat = json.loads(data)
                 allDat.extend(allDat)
-    return allDat
+    finalRes = json.dumps(allDat)
+    return (finalRes)
 
 
 @app.route('/')
