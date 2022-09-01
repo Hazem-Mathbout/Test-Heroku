@@ -239,7 +239,7 @@ def scrapKhamsatLoadMore():
 @app.route('/home', methods = ["POST", "GET"])
 def offersForHome():
     payload = json.loads(request.data, strict = False)
-    postedData   = payload["routes"]
+    postedData   = payload["route"]
     if "/resLoadMoreKhamsat" in postedData:
         LISTSCRAPING = [scrapKhamsat, scrapkafiil,scrapKhamsatLoadMore]
     else:
