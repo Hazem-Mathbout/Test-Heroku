@@ -238,10 +238,11 @@ def scrapKhamsatLoadMore():
 
 @app.route('/home', methods = ["POST", "GET"])
 def offersForHome():
+    allData = []
     payload = json.loads(request.data, strict = False)
     postedData   = payload["route"]
     if "/resLoadMoreKhamsat" in postedData:
-        LISTSCRAPING = [scrapKhamsat, scrapkafiil,scrapKhamsatLoadMore]
+        LISTSCRAPING = [scrapkafiil, scrapKhamsatLoadMore, scrapmostaql]
     else:
         LISTSCRAPING = [scrapKhamsat, scrapkafiil,scrapmostaql]
 
@@ -254,9 +255,9 @@ def offersForHome():
             except Exception as exc:
                 print('%r generated an exception: %s' % (website, exc))
             else:
-                allDat = json.loads(data)
-                allDat.extend(allDat)
-    finalRes = json.dumps(allDat)
+                output = json.loads(data)
+                allData.extend(output)
+    finalRes = json.dumps(allData)
     return (finalRes)
 
 
