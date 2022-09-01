@@ -103,16 +103,16 @@ def scrapmostaql(output = None):
         print(exc)   
     budget_max = 10000 if output["budget_max"]=="None" else output["budget_max"]
     budget_min = 0.00  if output["budget_min"]=="None" else output["budget_min"]
-    num_bage   = 1     if output["num_bage"]=="None" or 0 else output["num_bage"]
-    category = output["category"]
+    num_bage_mostaql   = 1     if output["num_bage_mostaql"]=="None" or 0 else output["num_bage_mostaql"]
+    category_mostaql = output["category_mostaql"]
 
     finalRes = {}
     listResult = []
     
-    if category == "None" : 
-        URL = f"https://mostaql.com/projects?page={num_bage}&budget_min={budget_min}&budget_max={budget_max}&sort=latest"
+    if category_mostaql == "None" : 
+        URL = f"https://mostaql.com/projects?page={num_bage_mostaql}&budget_min={budget_min}&budget_max={budget_max}&sort=latest"
     else:
-        URL = f"https://mostaql.com/projects?page={num_bage}&category={category}&budget_min={budget_min}&budget_max={budget_max}&sort=latest"
+        URL = f"https://mostaql.com/projects?page={num_bage_mostaql}&category={category_mostaql}&budget_min={budget_min}&budget_max={budget_max}&sort=latest"
     sourcPage = requests.get(URL, headers=HEADERS)
     sourcSoup = BeautifulSoup(sourcPage.content, "html.parser")
     tempRes = sourcSoup.findAll(name='tr', attrs={"class" : "project-row"})
@@ -150,16 +150,16 @@ def scrapkafiil(output = None):
         output = json.loads(request.data, strict = False)
     except Exception as exc:
         print(exc)  
-    num_bage   = 1 if output["num_bage"]=="None" or 0 else output["num_bage"]
-    category = output["category"]
+    num_bage_kafiil   = 1 if output["num_bage_kafiil"]=="None" or 0 else output["num_bage_kafiil"]
+    category_kafiil = output["category_kafiil"]
 
     finalRes = {}
     listResult = []
     
-    if category == "None" : 
-        URL = f"https://kafiil.com/kafiil/public/projects?page={num_bage}&source=web"
+    if category_kafiil == "None" : 
+        URL = f"https://kafiil.com/kafiil/public/projects?page={num_bage_kafiil}&source=web"
     else:
-        URL = f"https://kafiil.com/kafiil/public/projects/{category}?page={num_bage}&search=&source=web"
+        URL = f"https://kafiil.com/kafiil/public/projects/{category_kafiil}?page={num_bage_kafiil}&search=&source=web"
     sourcPage = requests.get(URL, headers=HEADERS)    
     sourcSoup = BeautifulSoup(sourcPage.content, "html.parser")
     tempRes = sourcSoup.findAll(name='div', attrs={"class" : "project-box active"})
@@ -198,10 +198,10 @@ def scrapKhamsatLoadMore():
     output = json.loads(request.data, strict = False)
     URL = "https://khamsat.com/ajax/load_more/community/requests"
     ORIGN = f"https://khamsat.com"
-    data   = output["data"]
+    dataLoadMore   = output["dataLoadMore"]
     finalRes = {}
     listResult = []
-    response = requests.post(URL, headers=HEADERS, data=data)
+    response = requests.post(URL, headers=HEADERS, data=dataLoadMore)
       
     body = response.json()
     htmlString = body["content"]
