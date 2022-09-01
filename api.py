@@ -1,7 +1,7 @@
-from email.policy import strict
 import json
 from bs4 import BeautifulSoup
 import requests
+import concurrent.futures
 
 from flask import Flask, request, jsonify
 app = Flask(__name__)
@@ -53,11 +53,14 @@ def post_something():
  
 
 @app.route("/resKham", methods = ["POST" , "GET"])
-def scrapKhamsat():
+def scrapKhamsat(output = None):
     ORIGN = f"https://khamsat.com"
     URL = ORIGN +"/community/requests"
-    output = request.get_json()
-
+    try:
+        output = request.get_json()
+    except Exception as exc:
+        print(f'generated an exception: {exc}')
+    
     finalRes = {}
     listResult = []
     basePage = requests.get(URL, headers=HEADERS)
@@ -93,11 +96,14 @@ def scrapKhamsat():
 
  
 @app.route("/resMost", methods = ["POST" , "GET"])
-def scrapmostaql():
-    output = request.get_json()
+def scrapmostaql(output = None):
+    try:
+         output = request.get_json()
+    except Exception as exc:
+        print(exc)   
     budget_max = 10000 if output["budget_max"]=="None" else output["budget_max"]
     budget_min = 0.00  if output["budget_min"]=="None" else output["budget_min"]
-    num_bage   = 1     if output["num_bage"]=="None" else output["num_bage"]
+    num_bage   = 1     if output["num_bage"]=="None" or 0 else output["num_bage"]
     category = output["category"]
 
     finalRes = {}
@@ -139,10 +145,12 @@ def scrapmostaql():
 
 
 @app.route("/resKafi", methods = ["POST" , "GET"])
-def scrapkafiil():
-    # output = request.get_json()
-    output = json.loads(request.data, strict = False)
-    num_bage   = 1 if output["num_bage"]=="None" else output["num_bage"]
+def scrapkafiil(output = None):
+    try:
+        output = json.loads(request.data, strict = False)
+    except Exception as exc:
+        print(exc)  
+    num_bage   = 1 if output["num_bage"]=="None" or 0 else output["num_bage"]
     category = output["category"]
 
     finalRes = {}
@@ -227,6 +235,28 @@ def scrapKhamsatLoadMore():
    
     finalRes = json.dumps(listResult)
     return (finalRes)
+
+@app.route('/home', methods = ["POST", "GET"])
+def offersForHome():
+    payload = json.loads(request.data, strict = False)
+    postedData   = payload["routes"]
+    if "/resLoadMoreKhamsat" in postedData:
+        LISTSCRAPING = [scrapKhamsat, scrapkafiil,scrapKhamsatLoadMore]
+    else:
+        LISTSCRAPING = [scrapKhamsat, scrapkafiil,scrapmostaql]
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        future_to_website = {executor.submit(website, payload): website for website in LISTSCRAPING}
+        for future in concurrent.futures.as_completed(future_to_website):
+            website = future_to_website[future]
+            try:
+                data = future.result()
+            except Exception as exc:
+                print('%r generated an exception: %s' % (website, exc))
+            else:
+                allDat = json.loads(data)
+                allDat.extend(allDat)
+    return allDat
 
 
 @app.route('/')
