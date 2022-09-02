@@ -1,3 +1,4 @@
+from cmath import exp
 import json
 from bs4 import BeautifulSoup
 import requests
@@ -59,7 +60,8 @@ def scrapKhamsat(output = None):
     try:
         output = request.get_json()
     except Exception as exc:
-        print(f"generated an exception when convert to json in route /resKham object : {exc}")     
+        print(f"generated an exception when convert to json in route /resKham object : {exc}") 
+        print(f"The output Now in /resKham is: {output}")    
     finalRes = {}
     listResult = []
     basePage = requests.get(URL, headers=HEADERS)
@@ -103,7 +105,8 @@ def scrapmostaql(output = None):
     try:
          output = request.get_json()
     except Exception as exc:
-        print(f"generated an exception when convert to json in route /resMost object : {exc}") 
+        print(f"generated an exception when convert to json in route /resMost =>: {exc}") 
+        print(f"The output Now in /resMost is: {output}")
     budget_max = 10000 if output["budget_max"]=="None" else output["budget_max"]
     budget_min = 0.00  if output["budget_min"]=="None" else output["budget_min"]
     num_bage_mostaql   = 1     if output["num_bage_mostaql"]=="None" or 0 else output["num_bage_mostaql"]
@@ -155,7 +158,7 @@ def scrapkafiil(output = None):
     try:
         output = json.loads(request.data, strict = False)
     except Exception as exc:
-        print(f"generated an exception when convert to json in route /resKafi object : {exc}") 
+        print(f"generated an exception when convert to json in route /resKafi => : {exc}") 
     num_bage_kafiil   = 1 if output["num_bage_kafiil"]=="None" or 0 else output["num_bage_kafiil"]
     category_kafiil = output["category_kafiil"]
 
@@ -207,7 +210,7 @@ def scrapKhamsatLoadMore(output = None):
     try:
         output = json.loads(request.data, strict = False)
     except Exception as exc:
-        print(f"generated an exception when convert to json in route /resLoadMoreKhamsat object : {exc}") 
+        print(f"generated an exception when convert to json in route /resLoadMoreKhamsat => : {exc}") 
     URL = "https://khamsat.com/ajax/load_more/community/requests"
     ORIGN = f"https://khamsat.com"
     dataLoadMore   = output["dataLoadMore"]
@@ -221,27 +224,30 @@ def scrapKhamsatLoadMore(output = None):
    
     results = sourcSoup.findAll(name='tr', attrs={"class" : "forum_post"})
     for i, res in enumerate(results):
-        title = res.find('h3', attrs={"class" : "details-head"}).find('a').text
-        url = ORIGN + res.find('h3', attrs={"class" : "details-head"}).find('a').get_attribute_list('href')[0]
-        time = res.find('td', attrs={"class" : "details-td"}).find('ul').findAll('li')[1].find('span').text.strip()
-        url_img = res.find('td', attrs={"class" : "avatar-td text-center"}).find('img').get_attribute_list('src')[0]
-        postId = res.get('id').replace("forum_post-", "posts_ids%5B%5D=")
+        try:
+             title = res.find('h3', attrs={"class" : "details-head"}).find('a').text
+             url = ORIGN + res.find('h3', attrs={"class" : "details-head"}).find('a').get_attribute_list('href')[0]
+             time = res.find('td', attrs={"class" : "details-td"}).find('ul').findAll('li')[1].find('span').text.strip()
+             url_img = res.find('td', attrs={"class" : "avatar-td text-center"}).find('img').get_attribute_list('src')[0]
+             postId = res.get('id').replace("forum_post-", "posts_ids%5B%5D=")
 
 
-        # ####################################
+             # ####################################
 
-        webpage2 = requests.get(url, headers= HEADERS)
-        soup = BeautifulSoup(webpage2.content, "html.parser")
-        content = soup.find(name= 'article' , attrs={"class" : "replace_urls"}).text
-        content = " ".join(content.split())
-        number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].find(name='h3').text
-        publisher = soup.find(name='a' , attrs={"class" : "sidebar_user"}).text
-        statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).find(name='li').text.strip()
-        dateTime = soup.findAll(name= 'div', attrs={"class" : "col-6"})[1].find(name='span').get_attribute_list('title')[0]
+             webpage2 = requests.get(url, headers= HEADERS)
+             soup = BeautifulSoup(webpage2.content, "html.parser")
+             content = soup.find(name= 'article' , attrs={"class" : "replace_urls"}).text
+             content = " ".join(content.split())
+             number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].find(name='h3').text
+             publisher = soup.find(name='a' , attrs={"class" : "sidebar_user"}).text
+             statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).find(name='li').text.strip()
+             dateTime = soup.findAll(name= 'div', attrs={"class" : "col-6"})[1].find(name='span').get_attribute_list('title')[0]
 
-        #####################################
-                                 
-        listResult.append({"postId" :postId , "dateTime" : dateTime ,"publisher" : publisher , "statusOfPublisher" : statusOfPublisher ,  "webSiteName" : "khamsat" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : None , "price" : None , "number_of_offers" : number_of_offers , "url_img" : url_img})
+             #####################################
+
+             listResult.append({"postId" :postId , "dateTime" : dateTime ,"publisher" : publisher , "statusOfPublisher" : statusOfPublisher ,  "webSiteName" : "khamsat" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : None , "price" : None , "number_of_offers" : number_of_offers , "url_img" : url_img})
+        except Exception as exc:
+            print(f"This Exception From read More Khamsat get offer  the error is : {exc}")
     # for res in listResult:
     #     finalRes.update(res)
    
