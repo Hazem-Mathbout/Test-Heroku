@@ -111,7 +111,7 @@ def scrapmostaql(output = None):
     budget_min = 0.00  if output["budget_min"]=="None" else output["budget_min"]
     num_bage_mostaql   = 1     if output["num_bage_mostaql"]=="None" or 0 else output["num_bage_mostaql"]
     category_mostaql = output["category_mostaql"]
-    delivery_duration_for_mostaql = output["delivery_duration_for_mostaql"]
+    delivery_duration_for_mostaql = "" if output["delivery_duration_for_mostaql"]=="None" else output["delivery_duration_for_mostaql"]
     skills_for_mostaql = output["skills_for_mostaql"]
 
     finalRes = {}
@@ -163,7 +163,7 @@ def scrapkafiil(output = None):
         print(f"generated an exception when convert to json in route /resKafi => : {exc}") 
     num_bage_kafiil   = 1 if output["num_bage_kafiil"]=="None" or 0 else output["num_bage_kafiil"]
     category_kafiil = output["category_kafiil"]
-    delivery_duration_for_kafiil = output["delivery_duration_for_kafiil"]
+    delivery_duration_for_kafiil = "" if output["delivery_duration_for_kafiil"]=="None" else output["delivery_duration_for_kafiil"]
     budget_max = 10000 if output["budget_max"]=="None" else output["budget_max"]
     budget_min = 0.00  if output["budget_min"]=="None" else output["budget_min"]
 
@@ -181,8 +181,8 @@ def scrapkafiil(output = None):
             for res in tempRes: 
                 price = res.findAll('p')[0].text.strip()
                 list_price = price.split('-')
-                numMin = int(list_price[0].removeprefix('$'))
-                numMax = int(list_price[1].removeprefix('$'))
+                numMin = int(list_price[0].strip().removeprefix('$'))
+                numMax = int(list_price[1].strip().removeprefix('$'))
                 budget_max = int(budget_max)
                 budget_min = int(budget_min)
                 if((budget_min > 0 or budget_max < 10000) and  (numMin != budget_min or numMax != budget_max)):

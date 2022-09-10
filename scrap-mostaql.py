@@ -319,8 +319,13 @@
 #     print(f"finish all offer here! =>  {len(allData)}")
 #     print(type(allData))
 
-price = "$25 - $50"
-min = price.split('-')[0].removeprefix('$')
+price = "$50 - $100"
+list_price = price.split('-')
+min = list_price[0].strip().removeprefix('$')
+max = list_price[1].strip().removeprefix('$')
+# print(min)
+# print(max)
+maxInt = int(max)
 minInt = int(min)
-print(minInt in range(25))
+print(minInt , maxInt)
 
