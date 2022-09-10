@@ -111,14 +111,16 @@ def scrapmostaql(output = None):
     budget_min = 0.00  if output["budget_min"]=="None" else output["budget_min"]
     num_bage_mostaql   = 1     if output["num_bage_mostaql"]=="None" or 0 else output["num_bage_mostaql"]
     category_mostaql = output["category_mostaql"]
+    delivery_duration_for_mostaql = output["delivery_duration_for_mostaql"]
+    skills_for_mostaql = output["skills_for_mostaql"]
 
     finalRes = {}
     listResult = []
     
     if category_mostaql == "None" : 
-        URL = f"https://mostaql.com/projects?page={num_bage_mostaql}&budget_min={budget_min}&budget_max={budget_max}&sort=latest"
+        URL = f"https://mostaql.com/projects?page={num_bage_mostaql}&skills={skills_for_mostaql}&duration={delivery_duration_for_mostaql}&budget_min={budget_min}&budget_max={budget_max}&sort=latest"
     else:
-        URL = f"https://mostaql.com/projects?page={num_bage_mostaql}&category={category_mostaql}&budget_min={budget_min}&budget_max={budget_max}&sort=latest"
+        URL = f"https://mostaql.com/projects?page={num_bage_mostaql}&category={category_mostaql}&skills={skills_for_mostaql}&duration={delivery_duration_for_mostaql}&budget_min={budget_min}&budget_max={budget_max}&sort=latest"
     sourcPage = requests.get(URL, headers=HEADERS)
     sourcSoup = BeautifulSoup(sourcPage.content, "html.parser")
     tempRes = sourcSoup.findAll(name='tr', attrs={"class" : "project-row"})
@@ -161,19 +163,29 @@ def scrapkafiil(output = None):
         print(f"generated an exception when convert to json in route /resKafi => : {exc}") 
     num_bage_kafiil   = 1 if output["num_bage_kafiil"]=="None" or 0 else output["num_bage_kafiil"]
     category_kafiil = output["category_kafiil"]
+    delivery_duration_for_kafiil = output["delivery_duration_for_kafiil"]
+    budget_max = 10000 if output["budget_max"]=="None" else output["budget_max"]
+    budget_min = 0.00  if output["budget_min"]=="None" else output["budget_min"]
 
     finalRes = {}
     listResult = []
     
     if category_kafiil == "None" : 
-        URL = f"https://kafiil.com/kafiil/public/projects?page={num_bage_kafiil}&source=web"
+        URL = f"https://kafiil.com/kafiil/public/projects?delivery_duration={delivery_duration_for_kafiil}&page={num_bage_kafiil}&source=web"
     else:
-        URL = f"https://kafiil.com/kafiil/public/projects/{category_kafiil}?page={num_bage_kafiil}&search=&source=web"
+        URL = f"https://kafiil.com/kafiil/public/projects/{category_kafiil}?delivery_duration={delivery_duration_for_kafiil}&page={num_bage_kafiil}&search=&source=web"
     sourcPage = requests.get(URL, headers=HEADERS)    
     sourcSoup = BeautifulSoup(sourcPage.content, "html.parser")
     tempRes = sourcSoup.findAll(name='div', attrs={"class" : "project-box active"})
     if len(tempRes) != 0 :
             for res in tempRes: 
+                price = res.findAll('p')[0].text.strip()
+                numMin = int(price.split('-')[0].removeprefix('$'))
+                numMax = int(price.split('-')[1].removeprefix('$'))
+                budget_max = int(budget_max)
+                budget_min = int(budget_min)
+                if((budget_min > 0 or budget_max < 10000) and  (numMin != budget_min or numMax != budget_max)):
+                    break
                 try:
                      title = res.findAll('a')[1].text.split()
                      if(title[0] != "قيد"):
@@ -183,7 +195,6 @@ def scrapkafiil(output = None):
                      url = res.findAll('a')[1].get_attribute_list('href')[0]
                      time = res.findAll('span')[1].text.strip()
                      status = res.findAll('span')[0].text
-                     price = res.findAll('p')[0].text.strip()
                      number_of_offers = res.findAll('span')[2].text.strip()
                      url_img = res.find('img').get_attribute_list('src')[0]
                      postId = url.split('-')[0].split('/')[-1]
