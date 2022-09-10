@@ -118,9 +118,9 @@ def scrapmostaql(output = None):
     listResult = []
     
     if category_mostaql == "None" : 
-        URL = f"https://mostaql.com/projects?page={num_bage_mostaql}&skills={skills_for_mostaql}&duration={delivery_duration_for_mostaql}&budget_min={budget_min}&budget_max={budget_max}&sort=latest"
+        URL = f"https://mostaql.com/projects?page={num_bage_mostaql}&skills={skills_for_mostaql}&duration={delivery_duration_for_mostaql.removesuffix(',')}&budget_min={budget_min}&budget_max={budget_max}&sort=latest"
     else:
-        URL = f"https://mostaql.com/projects?page={num_bage_mostaql}&category={category_mostaql}&skills={skills_for_mostaql}&duration={delivery_duration_for_mostaql}&budget_min={budget_min}&budget_max={budget_max}&sort=latest"
+        URL = f"https://mostaql.com/projects?page={num_bage_mostaql}&category={category_mostaql}&skills={skills_for_mostaql}&duration={delivery_duration_for_mostaql.removesuffix(',')}&budget_min={budget_min}&budget_max={budget_max}&sort=latest"
     sourcPage = requests.get(URL, headers=HEADERS)
     sourcSoup = BeautifulSoup(sourcPage.content, "html.parser")
     tempRes = sourcSoup.findAll(name='tr', attrs={"class" : "project-row"})
@@ -171,9 +171,9 @@ def scrapkafiil(output = None):
     listResult = []
     
     if category_kafiil == "None" : 
-        URL = f"https://kafiil.com/kafiil/public/projects?delivery_duration={delivery_duration_for_kafiil}&page={num_bage_kafiil}&source=web"
+        URL = f"https://kafiil.com/kafiil/public/projects?delivery_duration={delivery_duration_for_kafiil.removesuffix(',')}&page={num_bage_kafiil}&source=web"
     else:
-        URL = f"https://kafiil.com/kafiil/public/projects/{category_kafiil}?delivery_duration={delivery_duration_for_kafiil}&page={num_bage_kafiil}&search=&source=web"
+        URL = f"https://kafiil.com/kafiil/public/projects/{category_kafiil}?delivery_duration={delivery_duration_for_kafiil.removesuffix(',')}&page={num_bage_kafiil}&search=&source=web"
     sourcPage = requests.get(URL, headers=HEADERS)    
     sourcSoup = BeautifulSoup(sourcPage.content, "html.parser")
     tempRes = sourcSoup.findAll(name='div', attrs={"class" : "project-box active"})
