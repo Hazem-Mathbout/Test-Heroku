@@ -185,7 +185,7 @@ def scrapkafiil(output = None):
                 numMax = int(list_price[1].strip().removeprefix('$'))
                 budget_max = int(budget_max)
                 budget_min = int(budget_min)
-                if((budget_min > 0 or budget_max < 10000) and  (numMin >= budget_min and numMax <= budget_max)):
+                if((budget_min > 0 or budget_max < 10000) and  not(numMin >= budget_min and numMax <= budget_max)):
                     continue
                 try:
                      title = res.findAll('a')[1].text.split()
