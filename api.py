@@ -180,8 +180,9 @@ def scrapkafiil(output = None):
     if len(tempRes) != 0 :
             for res in tempRes: 
                 price = res.findAll('p')[0].text.strip()
-                numMin = int(price.split('-')[0].removeprefix('$'))
-                numMax = int(price.split('-')[1].removeprefix('$'))
+                list_price = price.split('-')
+                numMin = int(list_price[0].removeprefix('$'))
+                numMax = int(list_price[1].removeprefix('$'))
                 budget_max = int(budget_max)
                 budget_min = int(budget_min)
                 if((budget_min > 0 or budget_max < 10000) and  (numMin != budget_min or numMax != budget_max)):
@@ -275,7 +276,7 @@ def offersForHome():
     else:
         LISTSCRAPING = [scrapKhamsat, scrapkafiil,scrapmostaql]
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=8) as executor:
         future_to_website = {executor.submit(website, payload): website for website in LISTSCRAPING}
         for future in concurrent.futures.as_completed(future_to_website):
             website = future_to_website[future]
