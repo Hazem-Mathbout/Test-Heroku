@@ -319,6 +319,10 @@
 #     print(f"finish all offer here! =>  {len(allData)}")
 #     print(type(allData))
 
+from pickletools import int4
+from tokenize import Double
+
+
 price = "$50 - $100"
 list_price = price.split('-')
 min = list_price[0].strip().removeprefix('$')
@@ -329,3 +333,5 @@ maxInt = int(max)
 minInt = int(min)
 print(minInt , maxInt)
 
+test = "250.0"
+print(int(float(test)))

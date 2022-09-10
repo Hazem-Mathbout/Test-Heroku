@@ -183,8 +183,8 @@ def scrapkafiil(output = None):
                 list_price = price.split('-')
                 numMin = int(list_price[0].strip().removeprefix('$'))
                 numMax = int(list_price[1].strip().removeprefix('$'))
-                budget_max = int(budget_max)
-                budget_min = int(budget_min)
+                budget_max = int(float(budget_max))
+                budget_min = int(float(budget_min))
                 if((budget_min > 0 or budget_max < 10000) and  not(numMin >= budget_min and numMax <= budget_max)):
                     continue
                 try:
