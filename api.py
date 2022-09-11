@@ -61,7 +61,9 @@ def scrapKhamsat(output = None):
         output = request.get_json()
     except Exception as exc:
         print(f"generated an exception when convert to json in route /resKham object : {exc}") 
-        print(f"The output Now in /resKham is: {output}")    
+        print(f"The output Now in /resKham is: {output}")  
+    searchTerm = output["searchTerm"]
+      
     finalRes = {}
     listResult = []
     basePage = requests.get(URL, headers=HEADERS)
@@ -113,14 +115,15 @@ def scrapmostaql(output = None):
     category_mostaql = output["category_mostaql"]
     delivery_duration_for_mostaql = "" if output["delivery_duration_for_mostaql"]=="None" else output["delivery_duration_for_mostaql"]
     skills_for_mostaql = output["skills_for_mostaql"]
+    searchTerm = output["searchTerm"]
 
     finalRes = {}
     listResult = []
     
     if category_mostaql == "None" : 
-        URL = f"https://mostaql.com/projects?page={num_bage_mostaql}&skills={skills_for_mostaql}&duration={delivery_duration_for_mostaql.removesuffix(',')}&budget_min={budget_min}&budget_max={budget_max}&sort=latest"
+        URL = f"https://mostaql.com/projects?page={num_bage_mostaql}&keyword={searchTerm}&skills={skills_for_mostaql}&duration={delivery_duration_for_mostaql.removesuffix(',')}&budget_min={budget_min}&budget_max={budget_max}&sort=latest"
     else:
-        URL = f"https://mostaql.com/projects?page={num_bage_mostaql}&category={category_mostaql}&skills={skills_for_mostaql}&duration={delivery_duration_for_mostaql.removesuffix(',')}&budget_min={budget_min}&budget_max={budget_max}&sort=latest"
+        URL = f"https://mostaql.com/projects?page={num_bage_mostaql}&keyword={searchTerm}&category={category_mostaql}&skills={skills_for_mostaql}&duration={delivery_duration_for_mostaql.removesuffix(',')}&budget_min={budget_min}&budget_max={budget_max}&sort=latest"
     sourcPage = requests.get(URL, headers=HEADERS)
     sourcSoup = BeautifulSoup(sourcPage.content, "html.parser")
     tempRes = sourcSoup.findAll(name='tr', attrs={"class" : "project-row"})
@@ -166,14 +169,15 @@ def scrapkafiil(output = None):
     delivery_duration_for_kafiil = "" if output["delivery_duration_for_kafiil"]=="None" else output["delivery_duration_for_kafiil"]
     budget_max = 10000 if output["budget_max"]=="None" else output["budget_max"]
     budget_min = 0.00  if output["budget_min"]=="None" else output["budget_min"]
+    searchTerm = output["searchTerm"]
 
     finalRes = {}
     listResult = []
     
     if category_kafiil == "None" : 
-        URL = f"https://kafiil.com/kafiil/public/projects?delivery_duration={delivery_duration_for_kafiil.removesuffix(',')}&page={num_bage_kafiil}&source=web"
+        URL = f"https://kafiil.com/kafiil/public/projects?delivery_duration={delivery_duration_for_kafiil.removesuffix(',')}&page={num_bage_kafiil}&search={searchTerm}&source=web"
     else:
-        URL = f"https://kafiil.com/kafiil/public/projects/{category_kafiil}?delivery_duration={delivery_duration_for_kafiil.removesuffix(',')}&page={num_bage_kafiil}&search=&source=web"
+        URL = f"https://kafiil.com/kafiil/public/projects/{category_kafiil}?delivery_duration={delivery_duration_for_kafiil.removesuffix(',')}&page={num_bage_kafiil}&search={searchTerm}&source=web"
     sourcPage = requests.get(URL, headers=HEADERS)    
     sourcSoup = BeautifulSoup(sourcPage.content, "html.parser")
     tempRes = sourcSoup.findAll(name='div', attrs={"class" : "project-box active"})
@@ -226,6 +230,7 @@ def scrapKhamsatLoadMore(output = None):
     URL = "https://khamsat.com/ajax/load_more/community/requests"
     ORIGN = f"https://khamsat.com"
     dataLoadMore   = output["dataLoadMore"]
+    searchTerm = output["searchTerm"]
     finalRes = {}
     listResult = []
     response = requests.post(URL, headers=HEADERS, data=dataLoadMore)
