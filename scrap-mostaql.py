@@ -319,19 +319,31 @@
 #     print(f"finish all offer here! =>  {len(allData)}")
 #     print(type(allData))
 
-from pickletools import int4
-from tokenize import Double
+
+from operator import contains
 
 
-price = "$50 - $100"
-list_price = price.split('-')
-min = list_price[0].strip().removeprefix('$')
-max = list_price[1].strip().removeprefix('$')
-# print(min)
-# print(max)
-maxInt = int(max)
-minInt = int(min)
-print(minInt , maxInt)
+# title = "طلب مقالات حصرية عن مسلسل"
+# content = ''' 
+# السلام عليكم
+# اريد 8 ملخصات حصرية عن مسلسلات تركية تم عرض منها الحلقة الاولى.
+# (600 كلمة)
+# '''
 
-test = "250.0"
-print(int(float(test)))
+# searchTerm = "مقالاتت"
+# listContent = content.split()
+# listTitle = title.split()
+# if any(searchTerm in word for word in listTitle) :
+#     print("Match Found!")
+# else :
+#     print("Not Found")
+
+fullstring = "طلب مقالات حصرية عن مسلسل"
+substring = "المسلسل"
+
+if ((substring in fullstring ) or (substring[2:] in fullstring) ):
+    print("Found!")
+    print(substring[:1:-1])
+else :
+    print("Not Found!")
+    print(substring[:1:-1])

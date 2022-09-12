@@ -63,7 +63,7 @@ def scrapKhamsat(output = None):
         print(f"generated an exception when convert to json in route /resKham object : {exc}") 
         print(f"The output Now in /resKham is: {output}")  
     searchTerm = output["searchTerm"]
-      
+    payloadForSearchTerm = ""  
     finalRes = {}
     listResult = []
     basePage = requests.get(URL, headers=HEADERS)
@@ -86,6 +86,11 @@ def scrapKhamsat(output = None):
                 soup = BeautifulSoup(webpage2.content, "html.parser")
                 content = soup.find(name= 'article' , attrs={"class" : "replace_urls"}).text
                 content = " ".join(content.split())
+                # payloadForSearchTerm = payloadForSearchTerm + postId
+                if searchTerm.strip() != "" :
+                    check_result = checkOfferForSearchTerm(searchTerm=searchTerm, content=content, title=title)
+                    if check_result == False:
+                        continue
                 number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].find(name='h3').text
                 publisher = soup.find(name='a' , attrs={"class" : "sidebar_user"}).text
                 statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).find(name='li').text.strip()
@@ -234,7 +239,6 @@ def scrapKhamsatLoadMore(output = None):
     finalRes = {}
     listResult = []
     response = requests.post(URL, headers=HEADERS, data=dataLoadMore)
-      
     body = response.json()
     htmlString = body["content"]
     sourcSoup = BeautifulSoup(htmlString, "html.parser")
@@ -255,6 +259,10 @@ def scrapKhamsatLoadMore(output = None):
              soup = BeautifulSoup(webpage2.content, "html.parser")
              content = soup.find(name= 'article' , attrs={"class" : "replace_urls"}).text
              content = " ".join(content.split())
+             if searchTerm.strip() != "" :
+                    check_result = checkOfferForSearchTerm(searchTerm=searchTerm, content=content, title=title)
+                    if check_result == False:
+                        continue
              number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].find(name='h3').text
              publisher = soup.find(name='a' , attrs={"class" : "sidebar_user"}).text
              statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).find(name='li').text.strip()
@@ -295,6 +303,12 @@ def offersForHome():
     finalRes = json.dumps(allData)
     return (finalRes)
 
+
+def checkOfferForSearchTerm(searchTerm : str ,title : str, content : str) :
+    if((searchTerm in title or searchTerm in content) or (searchTerm[2:] in title or searchTerm[2:] in content)):
+        return True
+    else: 
+        return False
 
 @app.route('/')
 def index():
