@@ -107,9 +107,9 @@ def scrapKhamsat(output = None):
         secondListOffer = []
         secondListOffer = getMorOfferMatchSearchTerm(payloadSearch=payloadForSearchTerm , searchTerm=searchTerm , listResult= listResult)
         print(f"Number of secondListOffer : {len(secondListOffer)}")
-        for newOffer in secondListOffer :
-            print(f"// New Offer Found //")
-            listResult.append(newOffer)
+        print(f"// New Offer Found //")
+        listResult = secondListOffer
+         
     else :
         listResult.append({"all_post_id Add Now" : payloadForSearchTerm})
     print("I am Very Close To Send Response")
