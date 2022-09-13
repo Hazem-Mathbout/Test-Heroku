@@ -296,7 +296,7 @@ def scrapKhamsatLoadMore(output = None):
     ORIGN = f"https://khamsat.com"
     dataLoadMore   = output["dataLoadMore"]
     searchTerm = output["searchTerm"]
-    payloadForSearchTerm = "" 
+    # payloadForSearchTerm = "" 
     finalRes = {}
     listResult = []
     response = requests.post(URL, headers=HEADERS, data=dataLoadMore.removesuffix('&'))
@@ -319,7 +319,7 @@ def scrapKhamsatLoadMore(output = None):
              content = soup.find(name= 'article' , attrs={"class" : "replace_urls"}).text
              content = " ".join(content.split())
              ##################
-             payloadForSearchTerm = dataLoadMore + postId + "&"
+             dataLoadMore = dataLoadMore + postId + "&"
              if searchTerm.strip() != "" :
                 check_result = checkOfferForSearchTerm(searchTerm=searchTerm, title=title, content=content)
                 if check_result == False:
@@ -338,13 +338,13 @@ def scrapKhamsatLoadMore(output = None):
     if(len(listResult) <= 4 and searchTerm != ""):
         print(f"Number of First  listResult : {len( listResult)}")
         secondListOffer = []
-        secondListOffer = getMorOfferMatchSearchTerm(payloadSearch=payloadForSearchTerm , searchTerm=searchTerm , listResult= listResult)
+        secondListOffer = getMorOfferMatchSearchTerm(payloadSearch=dataLoadMore , searchTerm=searchTerm , listResult= listResult)
         print(f"Number of secondListOffer : {len(secondListOffer)}")
         print(f"// New Offer Found //")
         listResult = secondListOffer
          
     else :
-        listResult.append({"all_post_id" : payloadForSearchTerm})
+        listResult.append({"all_post_id" : dataLoadMore})
     print("I am Very Close To Send Response")
     finalRes = json.dumps(listResult)
     return (finalRes)
