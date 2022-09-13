@@ -103,7 +103,9 @@ def scrapKhamsat(output = None):
             except Exception as exc:
                 print(f"This Exception From khamsat get offer the error is : {exc}")
     if(len(listResult) <= 4 and searchTerm != ""):
+        print(f"Number of First  listResult : {len( listResult)}")
         secondListOffer = getMorOfferMatchSearchTerm(payloadSearch=payloadForSearchTerm , searchTerm=searchTerm , listResult= listResult)
+        print(f"Number of secondListOffer : {len(secondListOffer)}")
         for newOffer in secondListOffer :
             print(f"// New Offer Found //")
             listResult.append(newOffer)
