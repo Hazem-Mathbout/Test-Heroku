@@ -105,9 +105,11 @@ def scrapKhamsat(output = None):
     if(len(listResult) <= 4 and searchTerm != ""):
         secondListOffer = getMorOfferMatchSearchTerm(payloadSearch=payloadForSearchTerm , searchTerm=searchTerm , listResult= listResult)
         for newOffer in secondListOffer :
+            print(f"// New Offer Found //")
             listResult.append(newOffer)
     else :
         listResult.append({"all_post_id" : payloadForSearchTerm})
+    print("I am Very Close To Send Response")
     finalRes = json.dumps(listResult)
     return (finalRes)
 
