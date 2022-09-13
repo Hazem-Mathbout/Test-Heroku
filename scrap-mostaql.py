@@ -360,3 +360,8 @@ print(textdistance.cosine(fullstring, substring))
 # list2 = []
 # list2 = list1
 # print(list2)
+
+k = "fff&"
+print(k.removesuffix('&'))
+b = k
+print(k)

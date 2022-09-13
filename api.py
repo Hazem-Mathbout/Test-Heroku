@@ -312,13 +312,6 @@ def scrapKhamsatLoadMore(output = None):
              time = res.find('td', attrs={"class" : "details-td"}).find('ul').findAll('li')[1].find('span').text.strip()
              url_img = res.find('td', attrs={"class" : "avatar-td text-center"}).find('img').get_attribute_list('src')[0]
              postId = res.get('id').replace("forum_post-", "posts_ids%5B%5D=")
-             ##################
-             payloadForSearchTerm = payloadForSearchTerm + postId + "&"
-             if searchTerm.strip() != "" :
-                check_result = checkOfferForSearchTerm(searchTerm=searchTerm, title=title)
-                if check_result == False:
-                        continue
-                ##################
              # ####################################
 
              webpage2 = requests.get(url, headers= HEADERS)
@@ -326,7 +319,7 @@ def scrapKhamsatLoadMore(output = None):
              content = soup.find(name= 'article' , attrs={"class" : "replace_urls"}).text
              content = " ".join(content.split())
              ##################
-             payloadForSearchTerm = payloadForSearchTerm + postId + "&"
+             payloadForSearchTerm = dataLoadMore + postId + "&"
              if searchTerm.strip() != "" :
                 check_result = checkOfferForSearchTerm(searchTerm=searchTerm, title=title, content=content)
                 if check_result == False:
