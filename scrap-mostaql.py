@@ -339,9 +339,9 @@ from operator import contains
 #     print("Not Found")
 
 fullstring = "طلب مقالات حصرية عن مسلسل"
-substring = "المسلسل"
+substring = "طلب مقالات فورية"
 
-if ((substring in fullstring ) or (substring[2:] in fullstring) ):
+if ((substring.split() in fullstring.split()) or (substring[2:] in fullstring) ):
     print("Found!")
     print(substring[:1:-1])
 else :

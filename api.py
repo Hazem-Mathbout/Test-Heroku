@@ -104,8 +104,8 @@ def scrapKhamsat(output = None):
             except Exception as exc:
                 print(f"This Exception From khamsat get offer the error is : {exc}")
     if(len(listResult) < 2):
-         listResult.append(getMorOfferMatchSearchTerm(payloadSearch=payloadForSearchTerm , listResult= listResult)) 
-    listResult.append({"all_post_id" : payloadForSearchTerm})
+         listResult.append(getMorOfferMatchSearchTerm(payloadSearch=payloadForSearchTerm.removesuffix('&') , listResult= listResult)) 
+    listResult.append({"all_post_id" : payloadForSearchTerm.removesuffix('&')})
     finalRes = json.dumps(listResult, searchTerm )
     return (finalRes)
 
@@ -137,6 +137,7 @@ def getMorOfferMatchSearchTerm(payloadSearch = None , searchTerm = None, listRes
              soup = BeautifulSoup(webpage2.content, "html.parser")
              content = soup.find(name= 'article' , attrs={"class" : "replace_urls"}).text
              content = " ".join(content.split())
+             dataLoadMore = dataLoadMore + postId + "&"
              if searchTerm.strip() != "" :
                     check_result = checkOfferForSearchTerm(searchTerm=searchTerm, content=content, title=title)
                     if check_result == False:
@@ -153,7 +154,7 @@ def getMorOfferMatchSearchTerm(payloadSearch = None , searchTerm = None, listRes
             print(f"This Exception From read More Khamsat get offer  the error is : {exc}")
     
     if(len(listResult) <=2):
-        getMorOfferMatchSearchTerm(searchTerm= searchTerm, payloadSearch=payloadSearch, listResult=listResult)
+        getMorOfferMatchSearchTerm(searchTerm= searchTerm, payloadSearch=dataLoadMore.removesuffix('&'), listResult=listResult)
     return (listResult)
 
  
@@ -328,8 +329,8 @@ def scrapKhamsatLoadMore(output = None):
         except Exception as exc:
             print(f"This Exception From read More Khamsat get offer  the error is : {exc}")
     if(len(listResult) <=2 ):
-        listResult.append(getMorOfferMatchSearchTerm(searchTerm=searchTerm, payloadSearch=payloadForSearchTerm, listResult=listResult))
-    listResult.append({"all_post_id" : payloadForSearchTerm})
+        listResult.append(getMorOfferMatchSearchTerm(searchTerm=searchTerm, payloadSearch=payloadForSearchTerm.removesuffix('&'), listResult=listResult))
+    listResult.append({"all_post_id" : payloadForSearchTerm.removesuffix('&')})
     finalRes = json.dumps(listResult)
     return (finalRes)
 
