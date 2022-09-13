@@ -336,9 +336,10 @@ from difflib import SequenceMatcher
 #     print("Match Found!")
 # else :
 #     print("Not Found")
+import textdistance
 
-fullstring = "مطلوب محرر فيديو مونتير"
-substring =   "مونتير"
+fullstring = "مونتاج مدونه احترافيه"
+substring =   "مونتاج"
 
 
 string1 = "I am a test string"
@@ -346,8 +347,14 @@ string2 = "I am a testing string"
 
 # match = textdistance.cosine(fullstring, substring)
 match =  SequenceMatcher(None, fullstring, substring)
-print(match.ratio())
-print()
+if((match.ratio() >= 0.4) or (el in fullstring for el in substring.split())):
+    print("Found Match")
+else:
+    print("Not Found Match")
+
+
+print(textdistance.cosine(fullstring, substring))
+
 
 # list1 = [2,3,4]
 # list2 = []

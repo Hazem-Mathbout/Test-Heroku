@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import requests
 import concurrent.futures
 from difflib import SequenceMatcher
+import textdistance
 
 from flask import Flask, request, jsonify
 app = Flask(__name__)
@@ -366,7 +367,12 @@ def offersForHome():
 
 def checkOfferForSearchTerm(searchTerm : str ,title : str) :
    match =  SequenceMatcher(None, searchTerm, title)
-   if(match.ratio() >= 0.4):
+   for el in searchTerm.split():
+       if(el in title):
+           return True
+   if(match.ratio() >= 0.5):
+       return True
+   if(textdistance.cosine(searchTerm, title) >= 0.5):
        return True
    else:
        return False 
