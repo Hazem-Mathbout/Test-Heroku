@@ -366,7 +366,7 @@ def offersForHome():
 
 def checkOfferForSearchTerm(searchTerm : str ,title : str) :
    match =  SequenceMatcher(None, searchTerm, title)
-   if(match.ratio() >= 0.2):
+   if(match.ratio() >= 0.4):
        return True
    else:
        return False 
