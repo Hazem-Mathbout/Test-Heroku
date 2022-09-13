@@ -113,7 +113,7 @@ def scrapKhamsat(output = None):
         listResult = secondListOffer
          
     else :
-        listResult.append({"all_post_id Add Now" : payloadForSearchTerm})
+        listResult.append({"all_post_id" : payloadForSearchTerm})
     print("I am Very Close To Send Response")
     finalRes = json.dumps(listResult)
     return (finalRes)
@@ -351,7 +351,7 @@ def scrapKhamsatLoadMore(output = None):
         listResult = secondListOffer
          
     else :
-        listResult.append({"all_post_id Add Now" : payloadForSearchTerm})
+        listResult.append({"all_post_id" : payloadForSearchTerm})
     print("I am Very Close To Send Response")
     finalRes = json.dumps(listResult)
     return (finalRes)
