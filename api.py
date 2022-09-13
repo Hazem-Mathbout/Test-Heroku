@@ -86,25 +86,75 @@ def scrapKhamsat(output = None):
                 soup = BeautifulSoup(webpage2.content, "html.parser")
                 content = soup.find(name= 'article' , attrs={"class" : "replace_urls"}).text
                 content = " ".join(content.split())
-                # payloadForSearchTerm = payloadForSearchTerm + postId
+                ##################
+                payloadForSearchTerm = payloadForSearchTerm + postId + "&"
                 if searchTerm.strip() != "" :
                     check_result = checkOfferForSearchTerm(searchTerm=searchTerm, content=content, title=title)
                     if check_result == False:
                         continue
+                ##################
                 number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].find(name='h3').text
                 publisher = soup.find(name='a' , attrs={"class" : "sidebar_user"}).text
                 statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).find(name='li').text.strip()
                 dateTime = soup.findAll(name= 'div', attrs={"class" : "col-6"})[1].find(name='span').get_attribute_list('title')[0]
 
-        ###     #################################
+               #################################
                                      
                 listResult.append({"postId" :postId , "dateTime" : dateTime ,"publisher" : publisher , "statusOfPublisher" : statusOfPublisher ,  "webSiteName" : "khamsat" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : None , "price" : None , "number_of_offers" : number_of_offers , "url_img" : url_img})
             except Exception as exc:
                 print(f"This Exception From khamsat get offer the error is : {exc}")
-    # for res in listResult:
-    #     finalRes.update(res)
-    finalRes = json.dumps(listResult)
+    if(len(listResult) < 2):
+         listResult.append(getMorOfferMatchSearchTerm(payloadSearch=payloadForSearchTerm , listResult= listResult)) 
+    listResult.append({"all_post_id" : payloadForSearchTerm})
+    finalRes = json.dumps(listResult, searchTerm )
     return (finalRes)
+
+
+def getMorOfferMatchSearchTerm(payloadSearch = None , searchTerm = None, listResult = list):
+    URL = "https://khamsat.com/ajax/load_more/community/requests"
+    ORIGN = f"https://khamsat.com"
+    searchTerm = searchTerm
+    dataLoadMore = payloadSearch
+    listResult = listResult
+    response = requests.post(URL, headers=HEADERS, data=dataLoadMore)
+    body = response.json()
+    htmlString = body["content"]
+    sourcSoup = BeautifulSoup(htmlString, "html.parser")
+   
+    results = sourcSoup.findAll(name='tr', attrs={"class" : "forum_post"})
+    for i, res in enumerate(results):
+        try:
+             title = res.find('h3', attrs={"class" : "details-head"}).find('a').text
+             url = ORIGN + res.find('h3', attrs={"class" : "details-head"}).find('a').get_attribute_list('href')[0]
+             time = res.find('td', attrs={"class" : "details-td"}).find('ul').findAll('li')[1].find('span').text.strip()
+             url_img = res.find('td', attrs={"class" : "avatar-td text-center"}).find('img').get_attribute_list('src')[0]
+             postId = res.get('id').replace("forum_post-", "posts_ids%5B%5D=")
+
+
+             # ####################################
+
+             webpage2 = requests.get(url, headers= HEADERS)
+             soup = BeautifulSoup(webpage2.content, "html.parser")
+             content = soup.find(name= 'article' , attrs={"class" : "replace_urls"}).text
+             content = " ".join(content.split())
+             if searchTerm.strip() != "" :
+                    check_result = checkOfferForSearchTerm(searchTerm=searchTerm, content=content, title=title)
+                    if check_result == False:
+                        continue
+             number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].find(name='h3').text
+             publisher = soup.find(name='a' , attrs={"class" : "sidebar_user"}).text
+             statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).find(name='li').text.strip()
+             dateTime = soup.findAll(name= 'div', attrs={"class" : "col-6"})[1].find(name='span').get_attribute_list('title')[0]
+
+             #####################################
+
+             listResult.append({"postId" :postId , "dateTime" : dateTime ,"publisher" : publisher , "statusOfPublisher" : statusOfPublisher ,  "webSiteName" : "khamsat" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : None , "price" : None , "number_of_offers" : number_of_offers , "url_img" : url_img})
+        except Exception as exc:
+            print(f"This Exception From read More Khamsat get offer  the error is : {exc}")
+    
+    if(len(listResult) <=2):
+        getMorOfferMatchSearchTerm(searchTerm= searchTerm, payloadSearch=payloadSearch, listResult=listResult)
+    return (listResult)
 
  
 @app.route("/resMost", methods = ["POST" , "GET"])
@@ -236,6 +286,7 @@ def scrapKhamsatLoadMore(output = None):
     ORIGN = f"https://khamsat.com"
     dataLoadMore   = output["dataLoadMore"]
     searchTerm = output["searchTerm"]
+    payloadForSearchTerm = "" 
     finalRes = {}
     listResult = []
     response = requests.post(URL, headers=HEADERS, data=dataLoadMore)
@@ -259,10 +310,13 @@ def scrapKhamsatLoadMore(output = None):
              soup = BeautifulSoup(webpage2.content, "html.parser")
              content = soup.find(name= 'article' , attrs={"class" : "replace_urls"}).text
              content = " ".join(content.split())
+             ##################
+             payloadForSearchTerm = payloadForSearchTerm + postId + "&"
              if searchTerm.strip() != "" :
-                    check_result = checkOfferForSearchTerm(searchTerm=searchTerm, content=content, title=title)
-                    if check_result == False:
+                check_result = checkOfferForSearchTerm(searchTerm=searchTerm, content=content, title=title)
+                if check_result == False:
                         continue
+                ##################
              number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].find(name='h3').text
              publisher = soup.find(name='a' , attrs={"class" : "sidebar_user"}).text
              statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).find(name='li').text.strip()
@@ -273,9 +327,9 @@ def scrapKhamsatLoadMore(output = None):
              listResult.append({"postId" :postId , "dateTime" : dateTime ,"publisher" : publisher , "statusOfPublisher" : statusOfPublisher ,  "webSiteName" : "khamsat" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : None , "price" : None , "number_of_offers" : number_of_offers , "url_img" : url_img})
         except Exception as exc:
             print(f"This Exception From read More Khamsat get offer  the error is : {exc}")
-    # for res in listResult:
-    #     finalRes.update(res)
-   
+    if(len(listResult) <=2 ):
+        listResult.append(getMorOfferMatchSearchTerm(searchTerm=searchTerm, payloadSearch=payloadForSearchTerm, listResult=listResult))
+    listResult.append({"all_post_id" : payloadForSearchTerm})
     finalRes = json.dumps(listResult)
     return (finalRes)
 
