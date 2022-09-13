@@ -320,8 +320,7 @@
 #     print(type(allData))
 
 
-from operator import contains
-
+from difflib import SequenceMatcher
 
 # title = "طلب مقالات حصرية عن مسلسل"
 # content = ''' 
@@ -338,12 +337,14 @@ from operator import contains
 # else :
 #     print("Not Found")
 
-fullstring = "طلب مقالات حصرية عن مسلسل"
-substring = "طلب مقالات فورية"
+fullstring = "مطلوب محرر فيديو مونتير"
+substring =   ""
 
-if ((substring.split() in fullstring.split()) or (substring[2:] in fullstring) ):
-    print("Found!")
-    print(substring[:1:-1])
-else :
-    print("Not Found!")
-    print(substring[:1:-1])
+
+string1 = "I am a test string"
+string2 = "I am a testing string"
+
+# match = textdistance.cosine(fullstring, substring)
+match =  SequenceMatcher(None, fullstring, substring)
+print(match.ratio())
+print()

@@ -1,8 +1,8 @@
-from cmath import exp
 import json
 from bs4 import BeautifulSoup
 import requests
 import concurrent.futures
+from difflib import SequenceMatcher
 
 from flask import Flask, request, jsonify
 app = Flask(__name__)
@@ -78,21 +78,20 @@ def scrapKhamsat(output = None):
                 time = res.find('td', attrs={"class" : "details-td"}).find('ul').findAll('li')[1].find('span').text.strip()
                 url_img = res.find('td', attrs={"class" : "avatar-td text-center"}).find('img').get_attribute_list('src')[0]
                 postId = res.get('id').replace("forum_post-", "posts_ids%5B%5D=")
-
-
+                 ##################
+                payloadForSearchTerm = payloadForSearchTerm + postId + "&"
+                if searchTerm.strip() != "" :
+                    print("Search Term is not empty!")
+                    check_result = checkOfferForSearchTerm(searchTerm=searchTerm, title=title)
+                    if check_result == False:
+                        continue
+                ##################
                 # ####################################
 
                 webpage2 = requests.get(url, headers= HEADERS)
                 soup = BeautifulSoup(webpage2.content, "html.parser")
                 content = soup.find(name= 'article' , attrs={"class" : "replace_urls"}).text
                 content = " ".join(content.split())
-                ##################
-                payloadForSearchTerm = payloadForSearchTerm + postId + "&"
-                if searchTerm.strip() != "" :
-                    check_result = checkOfferForSearchTerm(searchTerm=searchTerm, content=content, title=title)
-                    if check_result == False:
-                        continue
-                ##################
                 number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].find(name='h3').text
                 publisher = soup.find(name='a' , attrs={"class" : "sidebar_user"}).text
                 statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).find(name='li').text.strip()
@@ -103,10 +102,13 @@ def scrapKhamsat(output = None):
                 listResult.append({"postId" :postId , "dateTime" : dateTime ,"publisher" : publisher , "statusOfPublisher" : statusOfPublisher ,  "webSiteName" : "khamsat" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : None , "price" : None , "number_of_offers" : number_of_offers , "url_img" : url_img})
             except Exception as exc:
                 print(f"This Exception From khamsat get offer the error is : {exc}")
-    if(len(listResult) < 2):
-         listResult.append(getMorOfferMatchSearchTerm(payloadSearch=payloadForSearchTerm.removesuffix('&') , listResult= listResult)) 
-    listResult.append({"all_post_id" : payloadForSearchTerm.removesuffix('&')})
-    finalRes = json.dumps(listResult, searchTerm )
+    if(len(listResult) <= 4 and searchTerm != ""):
+        secondListOffer = getMorOfferMatchSearchTerm(payloadSearch=payloadForSearchTerm , searchTerm=searchTerm , listResult= listResult)
+        for newOffer in secondListOffer :
+            listResult.append(newOffer)
+    else :
+        listResult.append({"all_post_id" : payloadForSearchTerm})
+    finalRes = json.dumps(listResult)
     return (finalRes)
 
 
@@ -116,7 +118,7 @@ def getMorOfferMatchSearchTerm(payloadSearch = None , searchTerm = None, listRes
     searchTerm = searchTerm
     dataLoadMore = payloadSearch
     listResult = listResult
-    response = requests.post(URL, headers=HEADERS, data=dataLoadMore)
+    response = requests.post(URL, headers=HEADERS, data=dataLoadMore.removesuffix('&'))
     body = response.json()
     htmlString = body["content"]
     sourcSoup = BeautifulSoup(htmlString, "html.parser")
@@ -129,19 +131,18 @@ def getMorOfferMatchSearchTerm(payloadSearch = None , searchTerm = None, listRes
              time = res.find('td', attrs={"class" : "details-td"}).find('ul').findAll('li')[1].find('span').text.strip()
              url_img = res.find('td', attrs={"class" : "avatar-td text-center"}).find('img').get_attribute_list('src')[0]
              postId = res.get('id').replace("forum_post-", "posts_ids%5B%5D=")
-
-
+             # ####################################
+             dataLoadMore = dataLoadMore + postId + "&"
+             if searchTerm.strip() != "" :
+                    check_result = checkOfferForSearchTerm(searchTerm=searchTerm ,title=title)
+                    if check_result == False:
+                        continue
              # ####################################
 
              webpage2 = requests.get(url, headers= HEADERS)
              soup = BeautifulSoup(webpage2.content, "html.parser")
              content = soup.find(name= 'article' , attrs={"class" : "replace_urls"}).text
              content = " ".join(content.split())
-             dataLoadMore = dataLoadMore + postId + "&"
-             if searchTerm.strip() != "" :
-                    check_result = checkOfferForSearchTerm(searchTerm=searchTerm, content=content, title=title)
-                    if check_result == False:
-                        continue
              number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].find(name='h3').text
              publisher = soup.find(name='a' , attrs={"class" : "sidebar_user"}).text
              statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).find(name='li').text.strip()
@@ -153,9 +154,9 @@ def getMorOfferMatchSearchTerm(payloadSearch = None , searchTerm = None, listRes
         except Exception as exc:
             print(f"This Exception From read More Khamsat get offer  the error is : {exc}")
     
-    if(len(listResult) <=2):
-        getMorOfferMatchSearchTerm(searchTerm= searchTerm, payloadSearch=dataLoadMore.removesuffix('&'), listResult=listResult)
-    return (listResult)
+    listResult.append({"all_post_id" : dataLoadMore})
+    print(f"Number of post id for all offer Now is: {len(dataLoadMore.split('&'))}")
+    return listResult
 
  
 @app.route("/resMost", methods = ["POST" , "GET"])
@@ -290,7 +291,7 @@ def scrapKhamsatLoadMore(output = None):
     payloadForSearchTerm = "" 
     finalRes = {}
     listResult = []
-    response = requests.post(URL, headers=HEADERS, data=dataLoadMore)
+    response = requests.post(URL, headers=HEADERS, data=dataLoadMore.removesuffix('&'))
     body = response.json()
     htmlString = body["content"]
     sourcSoup = BeautifulSoup(htmlString, "html.parser")
@@ -303,21 +304,19 @@ def scrapKhamsatLoadMore(output = None):
              time = res.find('td', attrs={"class" : "details-td"}).find('ul').findAll('li')[1].find('span').text.strip()
              url_img = res.find('td', attrs={"class" : "avatar-td text-center"}).find('img').get_attribute_list('src')[0]
              postId = res.get('id').replace("forum_post-", "posts_ids%5B%5D=")
-
-
+             ##################
+             payloadForSearchTerm = payloadForSearchTerm + postId + "&"
+             if searchTerm.strip() != "" :
+                check_result = checkOfferForSearchTerm(searchTerm=searchTerm, title=title)
+                if check_result == False:
+                        continue
+                ##################
              # ####################################
 
              webpage2 = requests.get(url, headers= HEADERS)
              soup = BeautifulSoup(webpage2.content, "html.parser")
              content = soup.find(name= 'article' , attrs={"class" : "replace_urls"}).text
              content = " ".join(content.split())
-             ##################
-             payloadForSearchTerm = payloadForSearchTerm + postId + "&"
-             if searchTerm.strip() != "" :
-                check_result = checkOfferForSearchTerm(searchTerm=searchTerm, content=content, title=title)
-                if check_result == False:
-                        continue
-                ##################
              number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].find(name='h3').text
              publisher = soup.find(name='a' , attrs={"class" : "sidebar_user"}).text
              statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).find(name='li').text.strip()
@@ -328,9 +327,10 @@ def scrapKhamsatLoadMore(output = None):
              listResult.append({"postId" :postId , "dateTime" : dateTime ,"publisher" : publisher , "statusOfPublisher" : statusOfPublisher ,  "webSiteName" : "khamsat" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : None , "price" : None , "number_of_offers" : number_of_offers , "url_img" : url_img})
         except Exception as exc:
             print(f"This Exception From read More Khamsat get offer  the error is : {exc}")
-    if(len(listResult) <=2 ):
+    if(len(listResult) <= 4 and searchTerm != ""):
         listResult.append(getMorOfferMatchSearchTerm(searchTerm=searchTerm, payloadSearch=payloadForSearchTerm.removesuffix('&'), listResult=listResult))
-    listResult.append({"all_post_id" : payloadForSearchTerm.removesuffix('&')})
+    else:
+        listResult.append({"all_post_id" : payloadForSearchTerm})
     finalRes = json.dumps(listResult)
     return (finalRes)
 
@@ -359,11 +359,12 @@ def offersForHome():
     return (finalRes)
 
 
-def checkOfferForSearchTerm(searchTerm : str ,title : str, content : str) :
-    if((searchTerm in title or searchTerm in content) or (searchTerm[2:] in title or searchTerm[2:] in content)):
-        return True
-    else: 
-        return False
+def checkOfferForSearchTerm(searchTerm : str ,title : str) :
+   match =  SequenceMatcher(None, searchTerm, title)
+   if(match.ratio() >= 2.3):
+       return True
+   else:
+       return False 
 
 @app.route('/')
 def index():
