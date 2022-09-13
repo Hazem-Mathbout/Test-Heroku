@@ -79,20 +79,21 @@ def scrapKhamsat(output = None):
                 time = res.find('td', attrs={"class" : "details-td"}).find('ul').findAll('li')[1].find('span').text.strip()
                 url_img = res.find('td', attrs={"class" : "avatar-td text-center"}).find('img').get_attribute_list('src')[0]
                 postId = res.get('id').replace("forum_post-", "posts_ids%5B%5D=")
-                 ##################
-                payloadForSearchTerm = payloadForSearchTerm + postId + "&"
-                if searchTerm.strip() != "" :
-                    print("Search Term is not empty!")
-                    check_result = checkOfferForSearchTerm(searchTerm=searchTerm, title=title)
-                    if check_result == False:
-                        continue
-                ##################
+                 
                 # ####################################
 
                 webpage2 = requests.get(url, headers= HEADERS)
                 soup = BeautifulSoup(webpage2.content, "html.parser")
                 content = soup.find(name= 'article' , attrs={"class" : "replace_urls"}).text
                 content = " ".join(content.split())
+                ##################
+                payloadForSearchTerm = payloadForSearchTerm + postId + "&"
+                if searchTerm.strip() != "" :
+                    print("Search Term is not empty!")
+                    check_result = checkOfferForSearchTerm(searchTerm=searchTerm, title=title, content=content)
+                    if check_result == False:
+                        continue
+                ##################
                 number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].find(name='h3').text
                 publisher = soup.find(name='a' , attrs={"class" : "sidebar_user"}).text
                 statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).find(name='li').text.strip()
@@ -137,18 +138,19 @@ def getMorOfferMatchSearchTerm(payloadSearch = None , searchTerm = None, listRes
              time = res.find('td', attrs={"class" : "details-td"}).find('ul').findAll('li')[1].find('span').text.strip()
              url_img = res.find('td', attrs={"class" : "avatar-td text-center"}).find('img').get_attribute_list('src')[0]
              postId = res.get('id').replace("forum_post-", "posts_ids%5B%5D=")
-             # ####################################
-             dataLoadMore = dataLoadMore + postId + "&"
-             if searchTerm.strip() != "" :
-                    check_result = checkOfferForSearchTerm(searchTerm=searchTerm ,title=title)
-                    if check_result == False:
-                        continue
-             # ####################################
+            
 
              webpage2 = requests.get(url, headers= HEADERS)
              soup = BeautifulSoup(webpage2.content, "html.parser")
              content = soup.find(name= 'article' , attrs={"class" : "replace_urls"}).text
              content = " ".join(content.split())
+              # ####################################
+             dataLoadMore = dataLoadMore + postId + "&"
+             if searchTerm.strip() != "" :
+                    check_result = checkOfferForSearchTerm(searchTerm=searchTerm ,title=title, content=content)
+                    if check_result == False:
+                        continue
+             # ####################################
              number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].find(name='h3').text
              publisher = soup.find(name='a' , attrs={"class" : "sidebar_user"}).text
              statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).find(name='li').text.strip()
@@ -323,6 +325,13 @@ def scrapKhamsatLoadMore(output = None):
              soup = BeautifulSoup(webpage2.content, "html.parser")
              content = soup.find(name= 'article' , attrs={"class" : "replace_urls"}).text
              content = " ".join(content.split())
+             ##################
+             payloadForSearchTerm = payloadForSearchTerm + postId + "&"
+             if searchTerm.strip() != "" :
+                check_result = checkOfferForSearchTerm(searchTerm=searchTerm, title=title, content=content)
+                if check_result == False:
+                        continue
+                ##################
              number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].find(name='h3').text
              publisher = soup.find(name='a' , attrs={"class" : "sidebar_user"}).text
              statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).find(name='li').text.strip()
@@ -334,9 +343,16 @@ def scrapKhamsatLoadMore(output = None):
         except Exception as exc:
             print(f"This Exception From read More Khamsat get offer  the error is : {exc}")
     if(len(listResult) <= 4 and searchTerm != ""):
-        listResult.append(getMorOfferMatchSearchTerm(searchTerm=searchTerm, payloadSearch=payloadForSearchTerm.removesuffix('&'), listResult=listResult))
-    else:
-        listResult.append({"all_post_id" : payloadForSearchTerm})
+        print(f"Number of First  listResult : {len( listResult)}")
+        secondListOffer = []
+        secondListOffer = getMorOfferMatchSearchTerm(payloadSearch=payloadForSearchTerm , searchTerm=searchTerm , listResult= listResult)
+        print(f"Number of secondListOffer : {len(secondListOffer)}")
+        print(f"// New Offer Found //")
+        listResult = secondListOffer
+         
+    else :
+        listResult.append({"all_post_id Add Now" : payloadForSearchTerm})
+    print("I am Very Close To Send Response")
     finalRes = json.dumps(listResult)
     return (finalRes)
 
@@ -365,12 +381,13 @@ def offersForHome():
     return (finalRes)
 
 
-def checkOfferForSearchTerm(searchTerm : str ,title : str) :
-   match =  SequenceMatcher(None, searchTerm, title)
+def checkOfferForSearchTerm(searchTerm : str ,title : str, content:str) :
+   match1 =  SequenceMatcher(None, searchTerm, title)
+   match2 =  SequenceMatcher(None, searchTerm, content)
    for el in searchTerm.split():
-       if(el in title):
+       if(el in title or el in content):
            return True
-   if(match.ratio() >= 0.5):
+   if(match1.ratio() >= 0.5 or match2.ratio() >= 0.5):
        return True
    if(textdistance.cosine(searchTerm, title) >= 0.5):
        return True

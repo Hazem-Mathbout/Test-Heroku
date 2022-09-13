@@ -338,7 +338,7 @@ from difflib import SequenceMatcher
 #     print("Not Found")
 import textdistance
 
-fullstring = "مونتاج مدونه احترافيه"
+fullstring = "ابحث عن انشاء مدونة بلوجر ( كل متطلبات المدونة فيها )إضافة"
 substring =   "مونتاج"
 
 
