@@ -337,14 +337,19 @@ from difflib import SequenceMatcher
 # else :
 #     print("Not Found")
 
-fullstring = "مطلوب محرر فيديو مونتير"
-substring =   ""
+# fullstring = "مطلوب محرر فيديو مونتير"
+# substring =   ""
 
 
-string1 = "I am a test string"
-string2 = "I am a testing string"
+# string1 = "I am a test string"
+# string2 = "I am a testing string"
 
-# match = textdistance.cosine(fullstring, substring)
-match =  SequenceMatcher(None, fullstring, substring)
-print(match.ratio())
-print()
+# # match = textdistance.cosine(fullstring, substring)
+# match =  SequenceMatcher(None, fullstring, substring)
+# print(match.ratio())
+# print()
+
+list1 = [2,3,4]
+list2 = []
+list2 = list1
+print(list2)

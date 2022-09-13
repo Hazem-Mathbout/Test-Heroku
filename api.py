@@ -104,19 +104,20 @@ def scrapKhamsat(output = None):
                 print(f"This Exception From khamsat get offer the error is : {exc}")
     if(len(listResult) <= 4 and searchTerm != ""):
         print(f"Number of First  listResult : {len( listResult)}")
-        # secondListOffer = getMorOfferMatchSearchTerm(payloadSearch=payloadForSearchTerm , searchTerm=searchTerm , listResult= listResult)
-        # print(f"Number of secondListOffer : {len(secondListOffer)}")
-        # for newOffer in secondListOffer :
-            # print(f"// New Offer Found //")
-            # listResult.append(newOffer)
+        secondListOffer = []
+        secondListOffer = getMorOfferMatchSearchTerm(payloadSearch=payloadForSearchTerm , searchTerm=searchTerm , listResult= listResult)
+        print(f"Number of secondListOffer : {len(secondListOffer)}")
+        for newOffer in secondListOffer :
+            print(f"// New Offer Found //")
+            listResult.append(newOffer)
     else :
-        listResult.append({"all_post_id" : payloadForSearchTerm})
+        listResult.append({"all_post_id Add Now" : payloadForSearchTerm})
     print("I am Very Close To Send Response")
     finalRes = json.dumps(listResult)
     return (finalRes)
 
 
-def getMorOfferMatchSearchTerm(payloadSearch = None , searchTerm = None, listResult = list):
+def getMorOfferMatchSearchTerm(payloadSearch = None , searchTerm = None, listResult = list) -> list:
     URL = "https://khamsat.com/ajax/load_more/community/requests"
     ORIGN = f"https://khamsat.com"
     searchTerm = searchTerm
@@ -365,7 +366,7 @@ def offersForHome():
 
 def checkOfferForSearchTerm(searchTerm : str ,title : str) :
    match =  SequenceMatcher(None, searchTerm, title)
-   if(match.ratio() >= 2.3):
+   if(match.ratio() >= 0.2):
        return True
    else:
        return False 
