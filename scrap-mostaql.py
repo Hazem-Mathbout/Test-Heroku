@@ -362,6 +362,4 @@ print(textdistance.cosine(fullstring, substring))
 # print(list2)
 
 k = "fff&"
-print(k.removesuffix('&'))
-b = k
-print(k)
+print(k.split())

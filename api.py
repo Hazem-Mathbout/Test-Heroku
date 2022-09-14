@@ -65,7 +65,7 @@ def scrapKhamsat(output = None):
         print(f"The output Now in /resKham is: {output}")  
     searchTerm = output["searchTerm"]
     payloadForSearchTerm = ""  
-    finalRes = {}
+    # finalRes = {}
     listResult = []
     basePage = requests.get(URL, headers=HEADERS)
     baseSoup = BeautifulSoup(basePage.content, "html.parser")
@@ -115,8 +115,8 @@ def scrapKhamsat(output = None):
     else :
         listResult.append({"all_post_id" : payloadForSearchTerm})
     print("I am Very Close To Send Response")
-    finalRes = json.dumps(listResult)
-    return (finalRes)
+    # finalRes = json.dumps(listResult)
+    return jsonify(listResult)
 
 
 def getMorOfferMatchSearchTerm(payloadSearch = None , searchTerm = None, listResult = list) -> list:
@@ -182,7 +182,7 @@ def scrapmostaql(output = None):
     skills_for_mostaql = output["skills_for_mostaql"]
     searchTerm = output["searchTerm"]
 
-    finalRes = {}
+    # finalRes = {}
     listResult = []
     
     if category_mostaql == "None" : 
@@ -218,15 +218,16 @@ def scrapmostaql(output = None):
                 print(f"This Exception From mostaql get offer the error is : {exc}")
 
     
-    finalRes = json.dumps(listResult)
-    return (finalRes)
+    # finalRes = json.dumps(listResult)
+    return jsonify(listResult)
     
 
 
 @app.route("/resKafi", methods = ["POST" , "GET"])
 def scrapkafiil(output = None):
     try:
-        output = json.loads(request.data, strict = False)
+        # output = json.loads(request.data, strict = False)
+        output = request.get_json()
     except Exception as exc:
         print(f"generated an exception when convert to json in route /resKafi => : {exc}") 
     num_bage_kafiil   = 1 if output["num_bage_kafiil"]=="None" or 0 else output["num_bage_kafiil"]
@@ -236,7 +237,7 @@ def scrapkafiil(output = None):
     budget_min = 0.00  if output["budget_min"]=="None" else output["budget_min"]
     searchTerm = output["searchTerm"]
 
-    finalRes = {}
+    # finalRes = {}
     listResult = []
     
     if category_kafiil == "None" : 
@@ -282,14 +283,15 @@ def scrapkafiil(output = None):
                      print(f"This Exception From Kaffil get offer  the error is : {exc}")
 
     
-    finalRes = json.dumps(listResult)
-    return (finalRes)
+    # finalRes = json.dumps(listResult)
+    return jsonify(listResult)
 
 
 @app.route("/resLoadMoreKhamsat", methods = ["POST", "GET"])
 def scrapKhamsatLoadMore(output = None):
     try:
-        output = json.loads(request.data, strict = False)
+        # output = json.loads(request.data, strict = False)
+        output = request.get_json()
     except Exception as exc:
         print(f"generated an exception when convert to json in route /resLoadMoreKhamsat => : {exc}") 
     URL = "https://khamsat.com/ajax/load_more/community/requests"
@@ -297,7 +299,7 @@ def scrapKhamsatLoadMore(output = None):
     dataLoadMore   = output["dataLoadMore"]
     searchTerm = output["searchTerm"]
     # payloadForSearchTerm = "" 
-    finalRes = {}
+    # finalRes = {}
     listResult = []
     response = requests.post(URL, headers=HEADERS, data=dataLoadMore.removesuffix('&'))
     body = response.json()
@@ -346,8 +348,8 @@ def scrapKhamsatLoadMore(output = None):
     else :
         listResult.append({"all_post_id" : dataLoadMore})
     print("I am Very Close To Send Response")
-    finalRes = json.dumps(listResult)
-    return (finalRes)
+    # finalRes = json.dumps(listResult)
+    return jsonify(listResult)
 
 @app.route('/home', methods = ["POST", "GET"])
 def offersForHome():
@@ -370,8 +372,8 @@ def offersForHome():
             else:
                 output = json.loads(data)
                 allData.extend(output)
-    finalRes = json.dumps(allData)
-    return (finalRes)
+    # finalRes = json.dumps(allData)
+    return jsonify(allData)
 
 
 def checkOfferForSearchTerm(searchTerm : str ,title : str, content:str) :
