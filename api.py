@@ -67,10 +67,13 @@ def scrapKhamsat(output = None):
     payloadForSearchTerm = ""  
     # finalRes = {}
     listResult = []
-    basePage = requests.get(URL, headers=HEADERS)
-    baseSoup = BeautifulSoup(basePage.content, "html.parser")
+    try:
+        basePage = requests.get(URL, headers=HEADERS)
+        baseSoup = BeautifulSoup(basePage.content, "html.parser")
+        results = baseSoup.findAll(name='tr', attrs={"class" : "forum_post"})
+    except Exception as exc:
+        print(f"This Exception When Connect To Khamsat error is : {exc}")
 
-    results = baseSoup.findAll(name='tr', attrs={"class" : "forum_post"})
     if(len(results) != 0):
         for i, res in enumerate(results):
             try:
@@ -125,12 +128,14 @@ def getMorOfferMatchSearchTerm(payloadSearch = None , searchTerm = None, listRes
     searchTerm = searchTerm
     dataLoadMore = payloadSearch
     listResult = listResult
-    response = requests.post(URL, headers=HEADERS, data=dataLoadMore.removesuffix('&'))
-    body = response.json()
-    htmlString = body["content"]
-    sourcSoup = BeautifulSoup(htmlString, "html.parser")
-   
-    results = sourcSoup.findAll(name='tr', attrs={"class" : "forum_post"})
+    try:
+         response = requests.post(URL, headers=HEADERS, data=dataLoadMore.removesuffix('&'))
+         body = response.json()
+         htmlString = body["content"]
+         sourcSoup = BeautifulSoup(htmlString, "html.parser")
+         results = sourcSoup.findAll(name='tr', attrs={"class" : "forum_post"})
+    except Exception as exc:
+         print(f"This Exception When Connect To Load More Buttom Khamsat the error is : {exc}")
     for i, res in enumerate(results):
         try:
              title = res.find('h3', attrs={"class" : "details-head"}).find('a').text
@@ -189,9 +194,12 @@ def scrapmostaql(output = None):
         URL = f"https://mostaql.com/projects?page={num_bage_mostaql}&keyword={searchTerm}&skills={skills_for_mostaql}&duration={delivery_duration_for_mostaql.removesuffix(',')}&budget_min={budget_min}&budget_max={budget_max}&sort=latest"
     else:
         URL = f"https://mostaql.com/projects?page={num_bage_mostaql}&keyword={searchTerm}&category={category_mostaql}&skills={skills_for_mostaql}&duration={delivery_duration_for_mostaql.removesuffix(',')}&budget_min={budget_min}&budget_max={budget_max}&sort=latest"
-    sourcPage = requests.get(URL, headers=HEADERS)
-    sourcSoup = BeautifulSoup(sourcPage.content, "html.parser")
-    tempRes = sourcSoup.findAll(name='tr', attrs={"class" : "project-row"})
+    try:
+        sourcPage = requests.get(URL, headers=HEADERS)
+        sourcSoup = BeautifulSoup(sourcPage.content, "html.parser")
+        tempRes = sourcSoup.findAll(name='tr', attrs={"class" : "project-row"})
+    except Exception as exc:
+        print(f"This Exception When Connect to Mostaql the error is : {exc}")
     if(len(tempRes) != 0):
         for res in tempRes:
             try:
@@ -244,9 +252,12 @@ def scrapkafiil(output = None):
         URL = f"https://kafiil.com/kafiil/public/projects?delivery_duration={delivery_duration_for_kafiil.removesuffix(',')}&page={num_bage_kafiil}&search={searchTerm}&source=web"
     else:
         URL = f"https://kafiil.com/kafiil/public/projects/{category_kafiil}?delivery_duration={delivery_duration_for_kafiil.removesuffix(',')}&page={num_bage_kafiil}&search={searchTerm}&source=web"
-    sourcPage = requests.get(URL, headers=HEADERS)    
-    sourcSoup = BeautifulSoup(sourcPage.content, "html.parser")
-    tempRes = sourcSoup.findAll(name='div', attrs={"class" : "project-box active"})
+    try:
+         sourcPage = requests.get(URL, headers=HEADERS)    
+         sourcSoup = BeautifulSoup(sourcPage.content, "html.parser")
+         tempRes = sourcSoup.findAll(name='div', attrs={"class" : "project-box active"})
+    except Exception as exc:
+         print(f"This Exception When connect To Kafiil the error is : {exc}")
     if len(tempRes) != 0 :
             for res in tempRes: 
                 price = res.findAll('p')[0].text.strip()
@@ -289,6 +300,7 @@ def scrapkafiil(output = None):
 
 @app.route("/resLoadMoreKhamsat", methods = ["POST", "GET"])
 def scrapKhamsatLoadMore(output = None):
+    listResult = []
     try:
         # output = json.loads(request.data, strict = False)
         output = request.get_json()
@@ -296,17 +308,17 @@ def scrapKhamsatLoadMore(output = None):
         print(f"generated an exception when convert to json in route /resLoadMoreKhamsat => : {exc}") 
     URL = "https://khamsat.com/ajax/load_more/community/requests"
     ORIGN = f"https://khamsat.com"
-    dataLoadMore   = output["dataLoadMore"]
-    searchTerm = output["searchTerm"]
-    # payloadForSearchTerm = "" 
-    # finalRes = {}
-    listResult = []
-    response = requests.post(URL, headers=HEADERS, data=dataLoadMore.removesuffix('&'))
-    body = response.json()
-    htmlString = body["content"]
-    sourcSoup = BeautifulSoup(htmlString, "html.parser")
-   
-    results = sourcSoup.findAll(name='tr', attrs={"class" : "forum_post"})
+    try:
+         dataLoadMore   = output["dataLoadMore"]
+         searchTerm = output["searchTerm"]
+         response = requests.post(URL, headers=HEADERS, data=dataLoadMore.removesuffix('&'))
+         body = response.json()
+         htmlString = body["content"]
+         sourcSoup = BeautifulSoup(htmlString, "html.parser")
+         results = sourcSoup.findAll(name='tr', attrs={"class" : "forum_post"})
+    except Exception as exc:
+        print(f"Exception When connect to khmasta load more ... the error is: {exc}")
+
     for i, res in enumerate(results):
         try:
              title = res.find('h3', attrs={"class" : "details-head"}).find('a').text
