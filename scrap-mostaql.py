@@ -370,40 +370,47 @@ import textdistance
 
 
 
-import datetime
-listTest = [
-	{
-		"content": "الاوليه لمن يجيد تقليد قصص الاطفالنحتاج صوت شباب وبنات قصص اطفال",
-		"dateTime": "14/09/2022 10:35:04 GMT",
-		"number_of_offers": "التعليقات (38)",
-		"postId": "posts_ids%5B%5D=607619",
-		"price": None,
-		"publisher": "May Mayaaa",
-		"status": None,
-		"statusOfPublisher": "مستخدم جديد",
-		"time": "منذ 5 ساعات و30 دقيقة",
-		"title": "صوت شباب وبنات قصص اطفال",
-		"url": "https://khamsat.com/community/requests/607619-%D8%B5%D9%88%D8%AA-%D8%B4%D8%A8%D8%A7%D8%A8-%D9%88%D8%A8%D9%86%D8%A7%D8%AA-%D9%82%D8%B5%D8%B5-%D8%A7%D8%B7%D9%81%D8%A7%D9%84",
-		"url_img": "https://avatars.hsoubcdn.com/186a9fc0ae82e25c1aef62a099ea71dd?s=128",
-		"webSiteName": "khamsat"
-	},
-	{
-		"content": "انا ابحث عن محترف تصميم يتعامل مع برامج الفوتوشوب وغيرها وليس التصاميم الجاهزة المركبةلقد جربت اغلب مصممين خمسات واغلبهم يتعامل مع التصاميم الجاهزةاريد شخص محترف يعمل لي بوست انستقرام لمطعم ويضمن لي احترافية عملهويكون متواجد 24/7 ولديه استمرارية في التصميم هذي اهم نقطة",
-		"dateTime": "14/09/2022 10:42:03 GMT",
-		"number_of_offers": "التعليقات (56)",
-		"postId": "posts_ids%5B%5D=607622",
-		"price": None,
-		"publisher": "عبدالله المقبالي",
-		"status": None,
-		"statusOfPublisher": "مشتري جديد",
-		"time": "منذ 5 ساعات و23 دقيقة",
-		"title": "محترفين التصميم فقط يعمل لي بوست انستقرام",
-		"url": "https://khamsat.com/community/requests/607622-%D9%85%D8%AD%D8%AA%D8%B1%D9%81%D9%8A%D9%86-%D8%A7%D9%84%D8%AA%D8%B5%D9%85%D9%8A%D9%85-%D9%81%D9%82%D8%B7-%D9%8A%D8%B9%D9%85%D9%84-%D9%84%D9%8A-%D8%A8%D9%88%D8%B3%D8%AA-%D8%A7%D9%86%D8%B3%D8%AA%D9%82%D8%B1%D8%A7%D9%85",
-		"url_img": "https://avatars.hsoubcdn.com/ee12d598a2416786078b4f66cfc2a9db?s=128",
-		"webSiteName": "khamsat"
-	}, ]
+# import datetime
+# listTest = [
+# 	{
+# 		"content": "الاوليه لمن يجيد تقليد قصص الاطفالنحتاج صوت شباب وبنات قصص اطفال",
+# 		"dateTime": "14/09/2022 10:35:04 GMT",
+# 		"number_of_offers": "التعليقات (38)",
+# 		"postId": "posts_ids%5B%5D=607619",
+# 		"price": None,
+# 		"publisher": "May Mayaaa",
+# 		"status": None,
+# 		"statusOfPublisher": "مستخدم جديد",
+# 		"time": "منذ 5 ساعات و30 دقيقة",
+# 		"title": "صوت شباب وبنات قصص اطفال",
+# 		"url": "https://khamsat.com/community/requests/607619-%D8%B5%D9%88%D8%AA-%D8%B4%D8%A8%D8%A7%D8%A8-%D9%88%D8%A8%D9%86%D8%A7%D8%AA-%D9%82%D8%B5%D8%B5-%D8%A7%D8%B7%D9%81%D8%A7%D9%84",
+# 		"url_img": "https://avatars.hsoubcdn.com/186a9fc0ae82e25c1aef62a099ea71dd?s=128",
+# 		"webSiteName": "khamsat"
+# 	},
+# 	{
+# 		"content": "انا ابحث عن محترف تصميم يتعامل مع برامج الفوتوشوب وغيرها وليس التصاميم الجاهزة المركبةلقد جربت اغلب مصممين خمسات واغلبهم يتعامل مع التصاميم الجاهزةاريد شخص محترف يعمل لي بوست انستقرام لمطعم ويضمن لي احترافية عملهويكون متواجد 24/7 ولديه استمرارية في التصميم هذي اهم نقطة",
+# 		"dateTime": "14/09/2022 10:42:03 GMT",
+# 		"number_of_offers": "التعليقات (56)",
+# 		"postId": "posts_ids%5B%5D=607622",
+# 		"price": None,
+# 		"publisher": "عبدالله المقبالي",
+# 		"status": None,
+# 		"statusOfPublisher": "مشتري جديد",
+# 		"time": "منذ 5 ساعات و23 دقيقة",
+# 		"title": "محترفين التصميم فقط يعمل لي بوست انستقرام",
+# 		"url": "https://khamsat.com/community/requests/607622-%D9%85%D8%AD%D8%AA%D8%B1%D9%81%D9%8A%D9%86-%D8%A7%D9%84%D8%AA%D8%B5%D9%85%D9%8A%D9%85-%D9%81%D9%82%D8%B7-%D9%8A%D8%B9%D9%85%D9%84-%D9%84%D9%8A-%D8%A8%D9%88%D8%B3%D8%AA-%D8%A7%D9%86%D8%B3%D8%AA%D9%82%D8%B1%D8%A7%D9%85",
+# 		"url_img": "https://avatars.hsoubcdn.com/ee12d598a2416786078b4f66cfc2a9db?s=128",
+# 		"webSiteName": "khamsat"
+# 	}, ]
 
-date_time_str = '14/09/2022 10:42:03 GMT'
-date_time_obj = datetime.datetime.strptime(date_time_str, '%d/%m/%Y %H:%M:%S GMT')
-# print('Current date/time: {}'.format(datetime.datetime.now()))
-print(type(date_time_obj))
+# date_time_str = '14/09/2022 10:42:03 GMT'
+# date_time_obj = datetime.datetime.strptime(date_time_str, '%d/%m/%Y %H:%M:%S GMT')
+# # print('Current date/time: {}'.format(datetime.datetime.now()))
+# print(type(date_time_obj))
+
+k = {}
+k.keys()
+
+u = [{"hazem" : 1}, {"omar" : "123"}]
+print(u.pop())
+print(u)
