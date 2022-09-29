@@ -107,6 +107,7 @@ def scrapKhamsat(output = None):
                     print(f"This Exception From khamsat get offer the error is : {exc}")
 
         listResult.append({"all_post_id" : payloadForSearchTerm})
+        basePage.close()
     except Exception as exc:
         pass
         print(f"This Exception When Connect To Khamsat error is : {exc}") 
@@ -327,12 +328,16 @@ def scrapKhamsatLoadMore(output = None):
          dataLoadMore   = output["dataLoadMore"]
         #  searchTerm = output["searchTerm"]
          response = requests.post(URL, headers=HEADERS, data=dataLoadMore.removesuffix('&'))
-         body = response.json()
-         htmlString = body["content"]
-         sourcSoup = BeautifulSoup(htmlString, "html.parser")
-         results = sourcSoup.findAll(name='tr', attrs={"class" : "forum_post"})
+         if response.status_code == 200 or response.status_code == 201:
+             body = response.json()
+             htmlString = body["content"]
+             sourcSoup = BeautifulSoup(htmlString, "html.parser")
+             results = sourcSoup.findAll(name='tr', attrs={"class" : "forum_post"})
+         else:
+             return jsonify([])
     except Exception as exc:
         print(f"Exception When connect to khmasta load more ... the error is: {exc}")
+  
     try:
         for i, res in enumerate(results):
             try:
@@ -364,6 +369,7 @@ def scrapKhamsatLoadMore(output = None):
                  listResult.append({"postId" :postId , "dateTime" : dateTime ,"publisher" : publisher , "statusOfPublisher" : statusOfPublisher ,  "webSiteName" : "khamsat" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : None , "price" : None , "number_of_offers" : number_of_offers , "url_img" : url_img})
             except Exception as exc:
                  print(f"This Exception From read More Khamsat get offer  the error is : {exc}")
+        response.close()
     except Exception as exc:
          print(f"This Exception When read More Khamsat get offer the error is : {exc}")
     # if(len(listResult) <= 4 and searchTerm != ""):
@@ -409,6 +415,7 @@ def searchKhamsat():
             allData.extend(data_object)        
             output = {"dataLoadMore" : initDataLoadMore}
             for _ in range(total_num_page):
+                print(_)
                 data = scrapKhamsatLoadMore(output= output)
                 data_object = json.loads(data)
                 lastElement = data_object.pop()
