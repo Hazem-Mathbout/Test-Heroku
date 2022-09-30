@@ -110,7 +110,8 @@ def scrapKhamsat(requests_session = None ,output = None):
     if output != None:
         finalRes = json.dumps(listResult)
         return (finalRes)
-    else:   
+    else:
+        requests_session.close()   
         return jsonify(listResult)
 
 
@@ -341,7 +342,7 @@ def scrapKhamsatLoadMore(requests_session= None ,output = None):
         finalRes = json.dumps(listResult)
         return (finalRes)
     else:
-        print(len(listResult))
+        requests_session.close()
         return jsonify(listResult)
 
 
@@ -383,6 +384,7 @@ def searchKhamsat():
     except Exception as exc:
         print(f"generated an exception in searchKhamsat => : {exc}")
     print(f"========== Number of List Search is : {len(allData)}")
+    requests_session.close()
     return jsonify(allData)
 
 
