@@ -166,7 +166,7 @@ def getMorOfferMatchSearchTerm(payloadSearch = None , searchTerm = None, listRes
 
  
 @app.route("/resMost", methods = ["POST" , "GET"])
-def scrapmostaql(requests_session ,output = None):
+def scrapmostaql(requests_session = None ,output = None):
     isFuncInternal = False
     if output == None:
         requests_session = requests.Session()
@@ -233,7 +233,7 @@ def scrapmostaql(requests_session ,output = None):
 
 
 @app.route("/resKafi", methods = ["POST" , "GET"])
-def scrapkafiil( requests_session,output = None):
+def scrapkafiil(requests_session = None,output = None):
     isFuncInternal = False
     if output == None:
         requests_session = requests.Session()
