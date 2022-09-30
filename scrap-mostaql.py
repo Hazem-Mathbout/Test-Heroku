@@ -408,9 +408,21 @@ import textdistance
 # # print('Current date/time: {}'.format(datetime.datetime.now()))
 # print(type(date_time_obj))
 
-k = {}
-k.keys()
+# k = {}
+# k.keys()
 
-u = [{"hazem" : 1}, {"omar" : "123"}]
-print(u.pop())
-print(u)
+# u = [{"hazem" : 1, "hazem" : 1}, {"omar" : "123"}]
+# # print(u.pop())
+# print(u)
+# # l = enumerate(u)
+# # for i , n in l:
+# #     print(n)
+
+myMAp = {"omar" : 1, "hazem": 2}
+
+def m(kmap):
+    jojo = {"jojo" : 3}
+    kmap.update(jojo)
+    print(kmap)
+
+m(myMAp)

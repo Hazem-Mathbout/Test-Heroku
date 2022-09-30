@@ -1,12 +1,14 @@
 import json
-from math import fabs
+from time import time
 from bs4 import BeautifulSoup
 import requests
 import concurrent.futures
 from difflib import SequenceMatcher
 import textdistance
-
+# from multiprocessing import Process, Lock
 from flask import Flask, request, jsonify
+
+
 app = Flask(__name__)
 
 HEADERS = ({'User-Agent':
@@ -55,59 +57,53 @@ def post_something():
         })
  
 
+
+ 
+
 @app.route("/resKham", methods = ["POST" , "GET"])
-def scrapKhamsat(output = None):
+def scrapKhamsat(requests_session = None ,output = None):
+    start_time = time()
     ORIGN = f"https://khamsat.com"
     URL = ORIGN +"/community/requests"
-    # try:
-    #     output = request.get_json()
-    # except Exception as exc:
-    #     print(f"generated an exception when convert to json in route /resKham object : {exc}") 
-    #     print(f"The output Now in /resKham is: {output}")  
-    # searchTerm = output["searchTerm"]
     payloadForSearchTerm = ""  
-    # finalRes = {}
     listResult = []
+    templistResult = []
     try:
-        basePage = requests.get(URL, headers=HEADERS)
-        baseSoup = BeautifulSoup(basePage.content, "html.parser")
+        if output == None:
+            requests_session = requests.Session()
+        basePage = requests_session.get(URL, headers=HEADERS)
+        baseSoup = BeautifulSoup(basePage.text, "lxml")
         results = baseSoup.findAll(name='tr', attrs={"class" : "forum_post"})
         if(len(results) != 0):
-            for i, res in enumerate(results):
-                try:
-                    title = res.find('h3', attrs={"class" : "details-head"}).find('a').text
-                    url = ORIGN + res.find('h3', attrs={"class" : "details-head"}).find('a').get_attribute_list('href')[0]
-                    time = res.find('td', attrs={"class" : "details-td"}).find('ul').findAll('li')[1].find('span').text.strip()
-                    url_img = res.find('td', attrs={"class" : "avatar-td text-center"}).find('img').get_attribute_list('src')[0]
-                    postId = res.get('id').replace("forum_post-", "posts_ids%5B%5D=")
-
-                    # ####################################
-
-                    webpage2 = requests.get(url, headers= HEADERS)
-                    soup = BeautifulSoup(webpage2.content, "html.parser")
-                    content = soup.find(name= 'article' , attrs={"class" : "replace_urls"}).text
-                    content = " ".join(content.split())
-                    ##################
-                    payloadForSearchTerm = payloadForSearchTerm + postId + "&"
-                    # if searchTerm.strip() != "" :
-                    #     print("Search Term is not empty!")
-                    #     check_result = checkOfferForSearchTerm(searchTerm=searchTerm, title=title, content=content)
-                    #     if check_result == False:
-                    #         continue
-                    ##################
-                    number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].find(name='h3').text
-                    publisher = soup.find(name='a' , attrs={"class" : "sidebar_user"}).text
-                    statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).find(name='li').text.strip()
-                    dateTime = soup.findAll(name= 'div', attrs={"class" : "col-6"})[1].find(name='span').get_attribute_list('title')[0]
-
-                   #################################
-
-                    listResult.append({"postId" :postId , "dateTime" : dateTime ,"publisher" : publisher , "statusOfPublisher" : statusOfPublisher ,  "webSiteName" : "khamsat" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : None , "price" : None , "number_of_offers" : number_of_offers , "url_img" : url_img})
-                except Exception as exc:
-                    print(f"This Exception From khamsat get offer the error is : {exc}")
+            with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
+                future_to_offer = {executor.submit(taskKahmsatScraping, offer): offer for offer in results}
+                for future in concurrent.futures.as_completed(future_to_offer):
+                    offer = future_to_offer[future]
+                    try:
+                        data = future.result()
+                    except Exception as exc:
+                        print('%r generated an exception: %s' % (offer, exc))
+                    else:
+                        templistResult.append(data)
+            # with concurrent.futures.ThreadPoolExecutor(max_workers=150) as executor:
+                future_to_offer = {executor.submit(taskScrapLinksKhamsat, offer , requests_session): offer for offer in templistResult}
+                for future in concurrent.futures.as_completed(future_to_offer):
+                    offer = future_to_offer[future]
+                    try:
+                        data = future.result()
+                    except Exception as exc:
+                        print('%r generated an exception: %s' % (offer, exc))
+                    else:
+                        print("***************************************************")
+                        print(data)
+                        payloadForSearchTerm = payloadForSearchTerm + data["postId"] + "&"
+                        listResult.append(data)
 
         listResult.append({"all_post_id" : payloadForSearchTerm})
-        basePage.close()
+
+        print(f"Number Offers: {len(listResult)}")
+        # requests_session.close()
+        print(f"{(time() - start_time):.2f} seconds")
     except Exception as exc:
         pass
         print(f"This Exception When Connect To Khamsat error is : {exc}") 
@@ -170,9 +166,10 @@ def getMorOfferMatchSearchTerm(payloadSearch = None , searchTerm = None, listRes
 
  
 @app.route("/resMost", methods = ["POST" , "GET"])
-def scrapmostaql(output = None):
+def scrapmostaql(requests_session ,output = None):
     isFuncInternal = False
     if output == None:
+        requests_session = requests.Session()
         try:
              output = request.get_json()
         except Exception as exc:
@@ -197,8 +194,8 @@ def scrapmostaql(output = None):
     else:
         URL = f"https://mostaql.com/projects?page={num_bage_mostaql}&keyword={searchTerm}&category={category_mostaql}&skills={skills_for_mostaql}&duration={delivery_duration_for_mostaql.removesuffix(',')}&budget_min={budget_min}&budget_max={budget_max}&sort=latest"
     try:
-        sourcPage = requests.get(URL, headers=HEADERS)
-        sourcSoup = BeautifulSoup(sourcPage.content, "html.parser")
+        sourcPage = requests_session.get(URL, headers=HEADERS)
+        sourcSoup = BeautifulSoup(sourcPage.text, "lxml")
         tempRes = sourcSoup.findAll(name='tr', attrs={"class" : "project-row"})
         if(len(tempRes) != 0):
             for res in tempRes:
@@ -210,8 +207,8 @@ def scrapmostaql(output = None):
                      number_of_offers = res.find('ul').findAll('li')[2].text.strip()
                      postId = url.split('-')[0].split('/')[-1]
                      ########################################################
-                     webpage2 = requests.get(url, headers= HEADERS)
-                     soup = BeautifulSoup(webpage2.content, "html.parser")
+                     webpage2 = requests_session.get(url, headers= HEADERS)
+                     soup = BeautifulSoup(webpage2.text, "lxml")
                      content = soup.find(name= 'div' , attrs={"class" : "text-wrapper-div carda__content"}).text
                      content = " ".join(content.split())
                      publisher = soup.find(name='h5' , attrs={"class" : "postcard__title profile__name mrg--an"}).find(name='bdi').text
@@ -224,7 +221,7 @@ def scrapmostaql(output = None):
                      listResult.append({"postId" : postId , "dateTime" : dateTime , "publisher" : publisher , "statusOfPublisher" : None ,  "webSiteName" : "mostaql" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : status , "price" : price , "number_of_offers" : number_of_offers , "url_img" : url_img})
                 except Exception as exc:
                     print(f"This Exception From mostaql get offer the error is : {exc}")
-
+        requests_session.close()
     except Exception as exc:
         print(f"This Exception When Connect to Mostaql the error is : {exc}")
     if isFuncInternal:
@@ -236,9 +233,10 @@ def scrapmostaql(output = None):
 
 
 @app.route("/resKafi", methods = ["POST" , "GET"])
-def scrapkafiil(output = None):
+def scrapkafiil( requests_session,output = None):
     isFuncInternal = False
     if output == None:
+        requests_session = requests.Session()
         try:
             # output = json.loads(request.data, strict = False)
             output = request.get_json()
@@ -261,8 +259,8 @@ def scrapkafiil(output = None):
     else:
         URL = f"https://kafiil.com/kafiil/public/projects/{category_kafiil}?delivery_duration={delivery_duration_for_kafiil.removesuffix(',')}&page={num_bage_kafiil}&search={searchTerm}&source=web"
     try:
-         sourcPage = requests.get(URL, headers=HEADERS)    
-         sourcSoup = BeautifulSoup(sourcPage.content, "html.parser")
+         sourcPage = requests_session.get(URL, headers=HEADERS)    
+         sourcSoup = BeautifulSoup(sourcPage.text, "lxml")
          tempRes = sourcSoup.findAll(name='div', attrs={"class" : "project-box active"})
          if len(tempRes) != 0 :
                  for res in tempRes: 
@@ -287,8 +285,8 @@ def scrapkafiil(output = None):
                           url_img = res.find('img').get_attribute_list('src')[0]
                           postId = url.split('-')[0].split('/')[-1]
                           #################################################
-                          webpage2 = requests.get(url, headers= HEADERS)
-                          soup = BeautifulSoup(webpage2.content, "html.parser")
+                          webpage2 = requests_session.get(url, headers= HEADERS)
+                          soup = BeautifulSoup(webpage2.text, "lxml")
                           content = soup.find(name= 'p' , attrs={"class" : ""}).text
                           content = " ".join(content.split())
                           publisher = soup.find(name='div' , attrs={"class" : "user-info-row"}).find('div').find('a').text
@@ -298,7 +296,7 @@ def scrapkafiil(output = None):
                           listResult.append({"postId" : postId  , "dateTime" : dateTime , "publisher" : publisher , "statusOfPublisher" : None ,  "webSiteName" : "kafiil" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : status , "price" : price , "number_of_offers" : number_of_offers , "url_img" : url_img})
                      except Exception as exc:
                           print(f"This Exception From Kaffil get offer  the error is : {exc}")
-
+         requests_session.close()
     except Exception as exc:
          print(f"This Exception When connect To Kafiil the error is : {exc}")
 
@@ -310,13 +308,14 @@ def scrapkafiil(output = None):
 
 
 @app.route("/resLoadMoreKhamsat", methods = ["POST", "GET"])
-def scrapKhamsatLoadMore(output = None):
+def scrapKhamsatLoadMore(requests_session= None ,output = None):
     isFuncInternal = False
     dataLoadMore = ""
+    templistResult = []
     listResult = []
     if output == None:
+        requests_session = requests.Session()
         try:
-            # output = json.loads(request.data, strict = False)
             output = request.get_json()
         except Exception as exc:
             print(f"generated an exception when convert to json in route /resLoadMoreKhamsat => : {exc}") 
@@ -327,70 +326,59 @@ def scrapKhamsatLoadMore(output = None):
     try:
          dataLoadMore   = output["dataLoadMore"]
         #  searchTerm = output["searchTerm"]
-         response = requests.post(URL, headers=HEADERS, data=dataLoadMore.removesuffix('&'))
+         response = requests_session.post(URL, headers=HEADERS, data=dataLoadMore.removesuffix('&'))
          if response.status_code == 200 or response.status_code == 201:
              body = response.json()
              htmlString = body["content"]
-             sourcSoup = BeautifulSoup(htmlString, "html.parser")
+             sourcSoup = BeautifulSoup(htmlString, "lxml")
              results = sourcSoup.findAll(name='tr', attrs={"class" : "forum_post"})
          else:
-             return jsonify([])
+             return jsonify(["error"])
     except Exception as exc:
         print(f"Exception When connect to khmasta load more ... the error is: {exc}")
   
     try:
-        for i, res in enumerate(results):
-            try:
-                 title = res.find('h3', attrs={"class" : "details-head"}).find('a').text
-                 url = ORIGN + res.find('h3', attrs={"class" : "details-head"}).find('a').get_attribute_list('href')[0]
-                 time = res.find('td', attrs={"class" : "details-td"}).find('ul').findAll('li')[1].find('span').text.strip()
-                 url_img = res.find('td', attrs={"class" : "avatar-td text-center"}).find('img').get_attribute_list('src')[0]
-                 postId = res.get('id').replace("forum_post-", "posts_ids%5B%5D=")
-                 # ####################################
+        with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
+            future_to_offer = {executor.submit(taskKahmsatScraping, offer): offer for offer in results}
+            for future in concurrent.futures.as_completed(future_to_offer):
+                offer = future_to_offer[future]
+                try:
+                    data = future.result()
+                except Exception as exc:
+                    print('%r generated an exception: %s' % (offer, exc))
+                else:
+                    templistResult.append(data)
+        # with concurrent.futures.ThreadPoolExecutor(max_workers=25) as executor:
+            future_to_offer = {executor.submit(taskScrapLinksKhamsat, offer , requests_session): offer for offer in templistResult}
+            for future in concurrent.futures.as_completed(future_to_offer):
+                offer = future_to_offer[future]
+                try:
+                    data = future.result()
+                except Exception as exc:
+                    print('%r generated an exception: %s' % (offer, exc))
+                else:
+                    print("***************************************************")
+                    print(data)
+                    dataLoadMore = dataLoadMore + data["postId"] + "&"
+                    listResult.append(data)
 
-                 webpage2 = requests.get(url, headers= HEADERS)
-                 soup = BeautifulSoup(webpage2.content, "html.parser")
-                 content = soup.find(name= 'article' , attrs={"class" : "replace_urls"}).text
-                 content = " ".join(content.split())
-                 ##################
-                 dataLoadMore = dataLoadMore + postId + "&"
-                #  if searchTerm.strip() != "" :
-                #     check_result = checkOfferForSearchTerm(searchTerm=searchTerm, title=title, content=content)
-                #     if check_result == False:
-                #             continue
-                    ##################
-                 number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].find(name='h3').text
-                 publisher = soup.find(name='a' , attrs={"class" : "sidebar_user"}).text
-                 statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).find(name='li').text.strip()
-                 dateTime = soup.findAll(name= 'div', attrs={"class" : "col-6"})[1].find(name='span').get_attribute_list('title')[0]
-
-                 #####################################
-
-                 listResult.append({"postId" :postId , "dateTime" : dateTime ,"publisher" : publisher , "statusOfPublisher" : statusOfPublisher ,  "webSiteName" : "khamsat" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : None , "price" : None , "number_of_offers" : number_of_offers , "url_img" : url_img})
-            except Exception as exc:
-                 print(f"This Exception From read More Khamsat get offer  the error is : {exc}")
-        response.close()
     except Exception as exc:
          print(f"This Exception When read More Khamsat get offer the error is : {exc}")
-    # if(len(listResult) <= 4 and searchTerm != ""):
-    #     print(f"Number of First  listResult : {len( listResult)}")
-    #     secondListOffer = []
-    #     secondListOffer = getMorOfferMatchSearchTerm(payloadSearch=dataLoadMore , searchTerm=searchTerm , listResult= listResult)
-    #     print(f"Number of secondListOffer : {len(secondListOffer)}")
-    #     print(f"// New Offer Found //")
-    #     listResult = secondListOffer
-         
-    # else :
+
     listResult.append({"all_post_id" : dataLoadMore})
     if isFuncInternal:
         finalRes = json.dumps(listResult)
         return (finalRes)
     else:
+        print(len(listResult))
         return jsonify(listResult)
+
+
 
 
 @app.route('/searchKhamsat', methods = ["POST", "GET"])
 def searchKhamsat():
+    requests_session = requests.Session()
     allData = []
     dataLoadMore = None
     total_num_page = 0
@@ -400,7 +388,7 @@ def searchKhamsat():
         total_num_page = output["total_num_page"]
         if dataLoadMore != None and dataLoadMore != "":
             for _ in range(total_num_page):
-                data = scrapKhamsatLoadMore(output= output)
+                data = scrapKhamsatLoadMore(requests_session ,output= output)
                 data_object = json.loads(data)
                 lastElement = data_object.pop()
                 initDataLoadMore =  output["dataLoadMore"] + lastElement["all_post_id"]
@@ -408,15 +396,14 @@ def searchKhamsat():
                 allData.extend(data_object)
 
         else:
-            data = scrapKhamsat(output= 'Internal Func Excuction')
+            data = scrapKhamsat(requests_session ,output= 'Internal Func Excuction')
             data_object = json.loads(data)
             lastElement = data_object.pop()
             initDataLoadMore = lastElement["all_post_id"]
             allData.extend(data_object)        
             output = {"dataLoadMore" : initDataLoadMore}
-            for _ in range(total_num_page):
-                print(_)
-                data = scrapKhamsatLoadMore(output= output)
+            for _ in range(total_num_page - 1):
+                data = scrapKhamsatLoadMore(requests_session ,output= output)
                 data_object = json.loads(data)
                 lastElement = data_object.pop()
                 initDataLoadMore = output["dataLoadMore"] +  lastElement["all_post_id"]
@@ -431,6 +418,7 @@ def searchKhamsat():
 
 @app.route('/home', methods = ["POST", "GET"])
 def offersForHome():
+    requests_session = requests.Session()
     allData = []
     payload = json.loads(request.data, strict = False)
     postedData   = payload["route"]
@@ -440,11 +428,10 @@ def offersForHome():
         LISTSCRAPING = [scrapKhamsat, scrapkafiil,scrapmostaql]
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=6) as executor:
-        future_to_website = {executor.submit(website, payload): website for website in LISTSCRAPING}
+        future_to_website = {executor.submit(website, requests_session, payload): website for website in LISTSCRAPING}
         for future in concurrent.futures.as_completed(future_to_website):
             website = future_to_website[future]
             try:
-                print("***************************************************")
                 data = future.result()
             except Exception as exc:
                 print('%r generated an exception: %s' % (website, exc))
@@ -453,6 +440,7 @@ def offersForHome():
                 output = json.loads(data)
                 allData.extend(output)
     # finalRes = json.dumps(allData)
+    print(len(allData))
     return jsonify(allData)
 
 
@@ -473,6 +461,71 @@ def checkOfferForSearchTerm(searchTerm : str ,title : str, content:str) :
 def index():
     # A welcome message to test our server
     return "<h1>Welcome to our medium-greeting-api!</h1>"
+
+
+
+
+def taskKahmsatScraping(res) -> dict:
+    # requests_session = requests.Session()
+    myDict = {}
+    ORIGN = f"https://khamsat.com"
+    URL = ORIGN +"/community/requests"
+    # payloadForSearchTerm = ""  
+    try:
+         title = res.find('h3', attrs={"class" : "details-head"}).find('a').text
+         url = ORIGN + res.find('h3', attrs={"class" : "details-head"}).find('a').get_attribute_list('href')[0]
+         time = res.find('td', attrs={"class" : "details-td"}).find('ul').findAll('li')[1].find('span').text.strip()
+         url_img = res.find('td', attrs={"class" : "avatar-td text-center"}).find('img').get_attribute_list('src')[0]
+         postId = res.get('id').replace("forum_post-", "posts_ids%5B%5D=")
+
+         # ####################################
+
+        #  webpage2 = requests_session.get(url, headers= HEADERS)
+        #  soup = BeautifulSoup(webpage2.text, "lxml")
+        #  content = soup.find(name= 'article' , attrs={"class" : "replace_urls"}).text
+        #  content = " ".join(content.split())
+        #  ##################
+        # #  payloadForSearchTerm = payloadForSearchTerm + postId + "&"
+        #  ##################
+        #  number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].find(name='h3').text
+        #  publisher = soup.find(name='a' , attrs={"class" : "sidebar_user"}).text
+        #  statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).find(name='li').text.strip()
+        #  dateTime = soup.findAll(name= 'div', attrs={"class" : "col-6"})[1].find(name='span').get_attribute_list('title')[0]
+        #  myDict = {"postId" :postId , "dateTime" : dateTime ,"publisher" : publisher , "statusOfPublisher" : statusOfPublisher ,  "webSiteName" : "khamsat" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : None , "price" : None , "number_of_offers" : number_of_offers , "url_img" : url_img}
+         myDict = {"postId" :postId ,   "webSiteName" : "khamsat" , "title" : title ,  "url" : url , "time" : time , "status" : None , "price" : None ,  "url_img" : url_img}
+    except Exception as exc:
+         print(f"This Exception From khamsat get offer the error is : {exc}")
+    return myDict
+
+
+def taskScrapLinksKhamsat(offer,requests_session):
+         myDict = {}
+         webpage2 = requests_session.get(offer["url"], headers= HEADERS)
+         soup = BeautifulSoup(webpage2.text, "lxml")
+         content = soup.find(name= 'article' , attrs={"class" : "replace_urls"}).text
+         content = " ".join(content.split())
+         number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].find(name='h3').text
+         publisher = soup.find(name='a' , attrs={"class" : "sidebar_user"}).text
+         statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).find(name='li').text.strip()
+         dateTime = soup.findAll(name= 'div', attrs={"class" : "col-6"})[1].find(name='span').get_attribute_list('title')[0]
+         myDict = {"dateTime" : dateTime ,"publisher" : publisher , "statusOfPublisher" : statusOfPublisher , "content" : content , "number_of_offers" : number_of_offers}
+         offer.update(myDict)
+         return offer
+
+
+testList = []
+
+def taskDeepSearchMutliThread(requests_session, output, l):
+    data = scrapKhamsatLoadMore(requests_session ,output= output)
+    l.acquire()
+    try:
+        data_object = json.loads(data)
+        lastElement = data_object.pop()
+        initDataLoadMore = output["dataLoadMore"] +  lastElement["all_post_id"]
+        output["dataLoadMore"] = initDataLoadMore
+        testList.extend(data_object)
+    finally:
+        l.release()
 
 
 if __name__ == '__main__':
