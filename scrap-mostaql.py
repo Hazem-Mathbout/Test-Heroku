@@ -418,11 +418,22 @@ import textdistance
 # # for i , n in l:
 # #     print(n)
 
-myMAp = {"omar" : 1, "hazem": 2}
+# myMAp = {"omar" : 1, "hazem": 2}
 
-def m(kmap):
-    jojo = {"jojo" : 3}
-    kmap.update(jojo)
-    print(kmap)
+# def m(kmap):
+#     jojo = {"jojo" : 3}
+#     kmap.update(jojo)
+#     print(kmap)
 
-m(myMAp)
+# m(myMAp)
+
+y = ["khamsat", "mostaql", "kafiil"]
+not_support = ["khamsat"]
+searchTerm = "baba"
+if searchTerm != "":
+    for web in y:
+        for m in not_support:
+            if m == web:
+                y.remove(m) 
+
+print (y)

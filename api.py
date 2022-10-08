@@ -388,6 +388,15 @@ def searchKhamsat():
     return jsonify(allData)
 
 
+def removeUnSpportWebSiteForSearching(list_website, searchTerm):
+    List_Not_Support_Searching = [scrapKhamsat, scrapKhamsatLoadMore]
+    if searchTerm != "":
+        for website in list_website:
+            for websiteNotSupportSearch in List_Not_Support_Searching:
+                if websiteNotSupportSearch == website:
+                    list_website.remove(websiteNotSupportSearch)
+    return list_website
+
 
 @app.route('/home', methods = ["POST", "GET"])
 def offersForHome():
@@ -399,9 +408,10 @@ def offersForHome():
         LISTSCRAPING = [scrapkafiil, scrapKhamsatLoadMore, scrapmostaql]
     else:
         LISTSCRAPING = [scrapKhamsat, scrapkafiil,scrapmostaql]
-
-    with concurrent.futures.ThreadPoolExecutor(max_workers=6) as executor:
-        future_to_website = {executor.submit(website, requests_session, payload): website for website in LISTSCRAPING}
+ 
+    NEW_LIST_SCRAPING = removeUnSpportWebSiteForSearching(LISTSCRAPING, payload["searchTerm"])
+    with concurrent.futures.ThreadPoolExecutor(max_workers=30) as executor:
+        future_to_website = {executor.submit(website, requests_session, payload): website for website in NEW_LIST_SCRAPING}
         for future in concurrent.futures.as_completed(future_to_website):
             website = future_to_website[future]
             try:
@@ -414,6 +424,7 @@ def offersForHome():
                 allData.extend(output)
     # finalRes = json.dumps(allData)
     print(len(allData))
+    requests_session.close()
     return jsonify(allData)
 
 
