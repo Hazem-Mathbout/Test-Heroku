@@ -427,13 +427,13 @@ import textdistance
 
 # m(myMAp)
 
-y = ["khamsat", "mostaql", "kafiil"]
-not_support = ["khamsat"]
-searchTerm = "baba"
-if searchTerm != "":
-    for web in y:
-        for m in not_support:
-            if m == web:
-                y.remove(m) 
+# y = ["khamsat", "mostaql", "kafiil"]
+# not_support = ["khamsat"]
+# searchTerm = "baba"
+# if searchTerm != "":
+#     for web in y:
+#         for m in not_support:
+#             if m == web:
+#                 y.remove(m) 
 
-print (y)
+# print (y)

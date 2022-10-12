@@ -111,7 +111,7 @@ def scrapKhamsat(requests_session = None ,output = None):
         finalRes = json.dumps(listResult)
         return (finalRes)
     else:
-        requests_session.close()   
+        # requests_session.close()   
         return jsonify(listResult)
 
 
@@ -450,11 +450,9 @@ def index():
 
 
 def taskKahmsatScraping(res) -> dict:
-    # requests_session = requests.Session()
     myDict = {}
     ORIGN = f"https://khamsat.com"
     URL = ORIGN +"/community/requests"
-    # payloadForSearchTerm = ""  
     try:
          title = res.find('h3', attrs={"class" : "details-head"}).find('a').text
          url = ORIGN + res.find('h3', attrs={"class" : "details-head"}).find('a').get_attribute_list('href')[0]
