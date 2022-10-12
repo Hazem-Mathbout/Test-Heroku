@@ -85,10 +85,10 @@ def scrapKhamsat(requests_session = None ,output = None):
                         print('%r generated an exception: %s' % (offer, exc))
                     else:
                         templistResult.append(data)
-            # with concurrent.futures.ThreadPoolExecutor(max_workers=150) as executor:
-                future_to_offer = {executor.submit(taskScrapLinksKhamsat, offer , requests_session): offer for offer in templistResult}
-                for future in concurrent.futures.as_completed(future_to_offer):
-                    offer = future_to_offer[future]
+            
+                future_to_Link_offer = {executor.submit(taskScrapLinksKhamsat, offer , requests_session): offer for offer in templistResult}
+                for future in concurrent.futures.as_completed(future_to_Link_offer):
+                    offer = future_to_Link_offer[future]
                     try:
                         data = future.result()
                     except Exception as exc:
@@ -111,7 +111,7 @@ def scrapKhamsat(requests_session = None ,output = None):
         finalRes = json.dumps(listResult)
         return (finalRes)
     else:
-        # requests_session.close()   
+        requests_session.close()   
         return jsonify(listResult)
 
 
@@ -213,13 +213,14 @@ def scrapmostaql(requests_session = None ,output = None):
                         listResult.append(data)
                     #  listResult.append({"postId" : postId , "dateTime" : dateTime , "publisher" : publisher , "statusOfPublisher" : None ,  "webSiteName" : "mostaql" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : status , "price" : price , "number_of_offers" : number_of_offers , "url_img" : url_img})
         print(f'Number Offer mostaql is: {len(listResult)}')
-        requests_session.close()
+        
     except Exception as exc:
         print(f"This Exception When Connect to Mostaql the error is : {exc}")
     if isFuncInternal:
         finalRes = json.dumps(listResult)
         return (finalRes)
     else:
+        requests_session.close()
         return jsonify(listResult)
     
 
@@ -251,7 +252,7 @@ def scrapkafiil(requests_session = None,output = None):
     else:
         URL = f"https://kafiil.com/kafiil/public/projects/{category_kafiil}?delivery_duration={delivery_duration_for_kafiil.removesuffix(',')}&page={num_bage_kafiil}&search={searchTerm}&source=web"
     try:
-         sourcPage = requests_session.get(URL, headers=HEADERS)    
+         sourcPage = requests_session.get(URL, headers=HEADERS, )    
          sourcSoup = BeautifulSoup(sourcPage.text, "lxml")
          tempRes = sourcSoup.findAll(name='div', attrs={"class" : "project-box active"})
          if len(tempRes) != 0 :
@@ -268,7 +269,7 @@ def scrapkafiil(requests_session = None,output = None):
                         print(data)
                         listResult.append(data)
          print(f"Number offers in kafiil {len(listResult)}")
-         requests_session.close()
+         
     except Exception as exc:
          print(f"This Exception When connect To Kafiil the error is : {exc}")
 
@@ -276,6 +277,7 @@ def scrapkafiil(requests_session = None,output = None):
         finalRes = json.dumps(listResult)
         return (finalRes)
     else:
+        requests_session.close()
         return jsonify(listResult)
 
 
@@ -321,9 +323,9 @@ def scrapKhamsatLoadMore(requests_session= None ,output = None):
                 else:
                     templistResult.append(data)
         # with concurrent.futures.ThreadPoolExecutor(max_workers=25) as executor:
-            future_to_offer = {executor.submit(taskScrapLinksKhamsat, offer , requests_session): offer for offer in templistResult}
-            for future in concurrent.futures.as_completed(future_to_offer):
-                offer = future_to_offer[future]
+            future_to_Link_offer = {executor.submit(taskScrapLinksKhamsat, offer , requests_session): offer for offer in templistResult}
+            for future in concurrent.futures.as_completed(future_to_Link_offer):
+                offer = future_to_Link_offer[future]
                 try:
                     data = future.result()
                 except Exception as exc:
