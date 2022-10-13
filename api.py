@@ -62,6 +62,7 @@ def post_something():
 
 @app.route("/resKham", methods = ["POST" , "GET"])
 def scrapKhamsat(requests_session = None ,output = None):
+    isFuncInternal = False
     start_time = time()
     ORIGN = f"https://khamsat.com"
     URL = ORIGN +"/community/requests"
@@ -71,11 +72,22 @@ def scrapKhamsat(requests_session = None ,output = None):
     try:
         if output == None:
             requests_session = requests.Session()
+            try:
+                 output = request.get_json()
+            except Exception as exc:
+                pass
+                print(f"generated an exception when convert to json in route /resKham =>: {exc}") 
+                print(f"The output Now in /resMost is: {output}")
+        else :
+            isFuncInternal = True
+        offset = output["offset"]
+        limit = 25 if output["limit"] > 25 else output["limit"]
         basePage = requests_session.get(URL, headers=HEADERS)
         baseSoup = BeautifulSoup(basePage.text, "lxml")
         results = baseSoup.findAll(name='tr', attrs={"class" : "forum_post"})
+        results = results[offset:limit]
         if(len(results) != 0):
-            with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=15) as executor:
                 future_to_offer = {executor.submit(taskKahmsatScraping, offer): offer for offer in results}
                 for future in concurrent.futures.as_completed(future_to_offer):
                     offer = future_to_offer[future]
@@ -107,9 +119,12 @@ def scrapKhamsat(requests_session = None ,output = None):
     except Exception as exc:
         pass
         print(f"This Exception When Connect To Khamsat error is : {exc}") 
-    if output != None:
+    if isFuncInternal:
         finalRes = json.dumps(listResult)
         return (finalRes)
+    # if output != None:
+    #     finalRes = json.dumps(listResult)
+    #     return (finalRes)
     else:
         requests_session.close()   
         return jsonify(listResult)
@@ -186,7 +201,8 @@ def scrapmostaql(requests_session = None ,output = None):
     delivery_duration_for_mostaql = "" if output["delivery_duration_for_mostaql"]=="None" else output["delivery_duration_for_mostaql"]
     skills_for_mostaql = output["skills_for_mostaql"]
     searchTerm = output["searchTerm"]
-
+    offset = output["offset"]
+    limit = 25 if output["limit"] > 25 else output["limit"]
     # finalRes = {}
     listResult = []
     
@@ -198,8 +214,9 @@ def scrapmostaql(requests_session = None ,output = None):
         sourcPage = requests_session.get(URL, headers=HEADERS)
         sourcSoup = BeautifulSoup(sourcPage.text, "lxml")
         tempRes = sourcSoup.findAll(name='tr', attrs={"class" : "project-row"})
+        tempRes = tempRes[offset:limit]
         if(len(tempRes) != 0):
-            with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
                 future_to_offer = {executor.submit(taskScrapMostaql, offer, requests_session): offer for offer in tempRes}
                 for future in concurrent.futures.as_completed(future_to_offer):
                     offer = future_to_offer[future]
@@ -244,6 +261,8 @@ def scrapkafiil(requests_session = None,output = None):
     budget_max = 10000 if output["budget_max"]=="None" else output["budget_max"]
     budget_min = 0.00  if output["budget_min"]=="None" else output["budget_min"]
     searchTerm = output["searchTerm"]
+    offset = output["offset"]
+    limit = 25 if output["limit"] > 25 else output["limit"]
 
     listResult = []
     
@@ -255,8 +274,9 @@ def scrapkafiil(requests_session = None,output = None):
          sourcPage = requests_session.get(URL, headers=HEADERS, )    
          sourcSoup = BeautifulSoup(sourcPage.text, "lxml")
          tempRes = sourcSoup.findAll(name='div', attrs={"class" : "project-box active"})
+         tempRes = tempRes[offset:limit]
          if len(tempRes) != 0 :
-             with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
+             with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
                 future_to_offer = {executor.submit(taskScrapKafiil, offer, requests_session, budget_min, budget_max): offer for offer in tempRes}
                 for future in concurrent.futures.as_completed(future_to_offer):
                     offer = future_to_offer[future]
@@ -299,6 +319,8 @@ def scrapKhamsatLoadMore(requests_session= None ,output = None):
     ORIGN = f"https://khamsat.com"
     try:
          dataLoadMore   = output["dataLoadMore"]
+         offset = output["offset"]
+         limit = 25 if output["limit"] > 25 else output["limit"]
         #  searchTerm = output["searchTerm"]
          response = requests_session.post(URL, headers=HEADERS, data=dataLoadMore.removesuffix('&'))
          if response.status_code == 200 or response.status_code == 201:
@@ -306,13 +328,14 @@ def scrapKhamsatLoadMore(requests_session= None ,output = None):
              htmlString = body["content"]
              sourcSoup = BeautifulSoup(htmlString, "lxml")
              results = sourcSoup.findAll(name='tr', attrs={"class" : "forum_post"})
+             results = results[offset:limit]
          else:
-             return jsonify(["error"])
+             return jsonify({})
     except Exception as exc:
         print(f"Exception When connect to khmasta load more ... the error is: {exc}")
   
     try:
-        with concurrent.futures.ThreadPoolExecutor(max_workers=100) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=13) as executor:
             future_to_offer = {executor.submit(taskKahmsatScraping, offer): offer for offer in results}
             for future in concurrent.futures.as_completed(future_to_offer):
                 offer = future_to_offer[future]
