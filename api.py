@@ -320,7 +320,7 @@ def scrapKhamsatLoadMore(requests_session= None ,output = None):
     ORIGN = f"https://khamsat.com"
     try:
          dataLoadMore   = output["dataLoadMore"]
-         offset = output["offset"]
+         offset = output["offset_khamsat"]
          limit = 25 if output["limit"] > 25 else output["limit"]
         #  searchTerm = output["searchTerm"]
          response = requests_session.post(URL, headers=HEADERS, data=dataLoadMore.removesuffix('&'))
