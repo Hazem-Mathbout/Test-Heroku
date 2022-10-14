@@ -63,10 +63,11 @@ def post_something():
 @app.route("/resKham", methods = ["POST" , "GET"])
 def scrapKhamsat(requests_session = None ,output = None):
     isFuncInternal = False
-    start_time = time()
+    payloadForSearchTerm = ""
+    baseSoup = BeautifulSoup("", 'lxml')
     ORIGN = f"https://khamsat.com"
     URL = ORIGN +"/community/requests"
-    payloadForSearchTerm = ""  
+    URL_LOAD_MORE = "https://khamsat.com/ajax/load_more/community/requests"
     listResult = []
     templistResult = []
     try:
@@ -76,14 +77,26 @@ def scrapKhamsat(requests_session = None ,output = None):
                  output = request.get_json()
             except Exception as exc:
                 pass
-                print(f"generated an exception when convert to json in route /resKham =>: {exc}") 
-                print(f"The output Now in /resMost is: {output}")
+                print(f"generated an exception when convert to json in route /resKham =>: {exc}")        
         else :
             isFuncInternal = True
+
+        num_page_khamsat = output["num_page_khamsat"]
         offset = output["offset_khamsat"]
         limit = 25 if output["limit"] > 25 else output["limit"]
-        basePage = requests_session.get(URL, headers=HEADERS)
-        baseSoup = BeautifulSoup(basePage.text, "lxml")
+
+        if (num_page_khamsat > 1):
+            dataLoadMore   = str(output["dataLoadMore"])
+            response = requests_session.post(URL_LOAD_MORE, headers=HEADERS, data=dataLoadMore.removesuffix('&'))
+            print("status code for load more khamsat request is: ", response.status_code)
+            if response.status_code == 200 or response.status_code == 201:
+                body = response.json()
+                htmlString = body["content"]
+                baseSoup = BeautifulSoup(htmlString, "lxml")
+        else:
+            basePage = requests_session.get(URL, headers=HEADERS)
+            baseSoup = BeautifulSoup(basePage.text, "lxml")
+        
         results = baseSoup.findAll(name='tr', attrs={"class" : "forum_post"})
         results = results[offset : offset+limit]
         if(len(results) != 0):
@@ -94,7 +107,7 @@ def scrapKhamsat(requests_session = None ,output = None):
                     try:
                         data = future.result()
                     except Exception as exc:
-                        print('%r generated an exception: %s' % (offer, exc))
+                        print('%r generated an exception in route /resKham: %s' % (offer, exc))
                     else:
                         templistResult.append(data)
             
@@ -104,27 +117,19 @@ def scrapKhamsat(requests_session = None ,output = None):
                     try:
                         data = future.result()
                     except Exception as exc:
-                        print('%r generated an exception: %s' % (offer, exc))
+                        print('%r generated an exception in route /resKham: %s' % (offer, exc))
                     else:
-                        print("***************************************************")
-                        print(data)
                         payloadForSearchTerm = payloadForSearchTerm + data["postId"] + "&"
                         listResult.append(data)
 
         listResult.append({"all_post_id" : payloadForSearchTerm})
-
-        print(f"Number Offers: {len(listResult)}")
-        # requests_session.close()
-        print(f"{(time() - start_time):.2f} seconds")
+        print(f"Number Offers in khamsat: {len(listResult)}")
     except Exception as exc:
         pass
         print(f"This Exception When Connect To Khamsat error is : {exc}") 
     if isFuncInternal:
         finalRes = json.dumps(listResult)
         return (finalRes)
-    # if output != None:
-    #     finalRes = json.dumps(listResult)
-    #     return (finalRes)
     else:
         requests_session.close()   
         return jsonify(listResult)
@@ -302,78 +307,6 @@ def scrapkafiil(requests_session = None,output = None):
         return jsonify(listResult)
 
 
-@app.route("/resLoadMoreKhamsat", methods = ["POST", "GET"])
-def scrapKhamsatLoadMore(requests_session= None ,output = None):
-    isFuncInternal = False
-    dataLoadMore = ""
-    templistResult = []
-    listResult = []
-    if output == None:
-        requests_session = requests.Session()
-        try:
-            output = request.get_json()
-        except Exception as exc:
-            print(f"generated an exception when convert to json in route /resLoadMoreKhamsat => : {exc}") 
-    else:
-        isFuncInternal = True
-    URL = "https://khamsat.com/ajax/load_more/community/requests"
-    ORIGN = f"https://khamsat.com"
-    try:
-         dataLoadMore   = output["dataLoadMore"]
-         offset = output["offset_khamsat"]
-         limit = 25 if output["limit"] > 25 else output["limit"]
-        #  searchTerm = output["searchTerm"]
-         response = requests_session.post(URL, headers=HEADERS, data=dataLoadMore.removesuffix('&'))
-         if response.status_code == 200 or response.status_code == 201:
-             body = response.json()
-             htmlString = body["content"]
-             sourcSoup = BeautifulSoup(htmlString, "lxml")
-             results = sourcSoup.findAll(name='tr', attrs={"class" : "forum_post"})
-             results = results[offset : offset+limit]
-         else:
-             return jsonify({})
-    except Exception as exc:
-        print(f"Exception When connect to khmasta load more ... the error is: {exc}")
-  
-    try:
-        with concurrent.futures.ThreadPoolExecutor(max_workers=13) as executor:
-            future_to_offer = {executor.submit(taskKahmsatScraping, offer): offer for offer in results}
-            for future in concurrent.futures.as_completed(future_to_offer):
-                offer = future_to_offer[future]
-                try:
-                    data = future.result()
-                except Exception as exc:
-                    print('%r generated an exception: %s' % (offer, exc))
-                else:
-                    templistResult.append(data)
-        # with concurrent.futures.ThreadPoolExecutor(max_workers=25) as executor:
-            future_to_Link_offer = {executor.submit(taskScrapLinksKhamsat, offer , requests_session): offer for offer in templistResult}
-            for future in concurrent.futures.as_completed(future_to_Link_offer):
-                offer = future_to_Link_offer[future]
-                try:
-                    data = future.result()
-                except Exception as exc:
-                    print('%r generated an exception: %s' % (offer, exc))
-                else:
-                    print("***************************************************")
-                    print(data)
-                    dataLoadMore = dataLoadMore + data["postId"] + "&"
-                    listResult.append(data)
-
-    except Exception as exc:
-         print(f"This Exception When read More Khamsat get offer the error is : {exc}")
-
-    listResult.append({"all_post_id" : dataLoadMore})
-    if isFuncInternal:
-        finalRes = json.dumps(listResult)
-        return (finalRes)
-    else:
-        requests_session.close()
-        return jsonify(listResult)
-
-
-
-
 @app.route('/searchKhamsat', methods = ["POST", "GET"])
 def searchKhamsat():
     requests_session = requests.Session()
@@ -382,31 +315,20 @@ def searchKhamsat():
     total_num_page = 0
     try:
         output = request.get_json()
-        dataLoadMore   = output["dataLoadMore"]
+        dataLoadMore   = "" if output["dataLoadMore"] == None else output["dataLoadMore"]
         total_num_page = output["total_num_page"]
-        if dataLoadMore != None and dataLoadMore != "":
-            for _ in range(total_num_page):
-                data = scrapKhamsatLoadMore(requests_session ,output= output)
-                data_object = json.loads(data)
-                lastElement = data_object.pop()
-                initDataLoadMore =  output["dataLoadMore"] + lastElement["all_post_id"]
-                output["dataLoadMore"] = initDataLoadMore
-                allData.extend(data_object)
-
-        else:
-            data = scrapKhamsat(requests_session ,output= 'Internal Func Excuction')
+        num_page_khamsat = 1 
+        offset = 0 
+        limit = 25
+        payload_khamsat = {"dataLoadMore" : dataLoadMore, "num_page_khamsat" : num_page_khamsat, "offset_khamsat" : offset, "limit" : limit }
+        for _ in range(total_num_page):
+            data = scrapKhamsat(requests_session ,output= payload_khamsat)
             data_object = json.loads(data)
             lastElement = data_object.pop()
-            initDataLoadMore = lastElement["all_post_id"]
-            allData.extend(data_object)        
-            output = {"dataLoadMore" : initDataLoadMore}
-            for _ in range(total_num_page - 1):
-                data = scrapKhamsatLoadMore(requests_session ,output= output)
-                data_object = json.loads(data)
-                lastElement = data_object.pop()
-                initDataLoadMore = output["dataLoadMore"] +  lastElement["all_post_id"]
-                output["dataLoadMore"] = initDataLoadMore
-                allData.extend(data_object)
+            num_page_khamsat = num_page_khamsat + 1
+            payload_khamsat["dataLoadMore"] = payload_khamsat["dataLoadMore"] +  lastElement["all_post_id"]
+            payload_khamsat["num_page_khamsat"] = num_page_khamsat
+            allData.extend(data_object)
     except Exception as exc:
         print(f"generated an exception in searchKhamsat => : {exc}")
     print(f"========== Number of List Search is : {len(allData)}")
@@ -415,7 +337,7 @@ def searchKhamsat():
 
 
 def removeUnSpportWebSiteForSearching(list_website, searchTerm):
-    List_Not_Support_Searching = [scrapKhamsat, scrapKhamsatLoadMore]
+    List_Not_Support_Searching = [scrapKhamsat]
     if searchTerm != "":
         for website in list_website:
             for websiteNotSupportSearch in List_Not_Support_Searching:
@@ -429,12 +351,7 @@ def offersForHome():
     requests_session = requests.Session()
     allData = []
     payload = json.loads(request.data, strict = False)
-    postedData   = payload["route"]
-    if "/resLoadMoreKhamsat" in postedData:
-        LISTSCRAPING = [scrapkafiil, scrapKhamsatLoadMore, scrapmostaql]
-    else:
-        LISTSCRAPING = [scrapKhamsat, scrapkafiil,scrapmostaql]
- 
+    LISTSCRAPING = [scrapKhamsat, scrapkafiil,scrapmostaql]
     NEW_LIST_SCRAPING = removeUnSpportWebSiteForSearching(LISTSCRAPING, payload["searchTerm"])
     with concurrent.futures.ThreadPoolExecutor(max_workers=30) as executor:
         future_to_website = {executor.submit(website, requests_session, payload): website for website in NEW_LIST_SCRAPING}
@@ -443,13 +360,11 @@ def offersForHome():
             try:
                 data = future.result()
             except Exception as exc:
-                print('%r generated an exception: %s' % (website, exc))
+                print('%r generated an exception in route /home: %s' % (website, exc))
             else:
-                print("***************************************************")
                 output = json.loads(data)
                 allData.extend(output)
-    # finalRes = json.dumps(allData)
-    print(len(allData))
+    print( "number offers in home: ",len(allData))
     requests_session.close()
     return jsonify(allData)
 
