@@ -7,7 +7,7 @@ from difflib import SequenceMatcher
 import textdistance
 # from multiprocessing import Process, Lock
 from flask import Flask, request, jsonify
-
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -121,7 +121,7 @@ def scrapKhamsat(requests_session = None ,output = None):
                     else:
                         payloadForSearchTerm = payloadForSearchTerm + data["postId"] + "&"
                         listResult.append(data)
-
+        listResult.sort(key=lambda x: x['dateTime'], reverse=True)
         listResult.append({"all_post_id" : payloadForSearchTerm})
         print(f"Number Offers in khamsat: {len(listResult)}")
     except Exception as exc:
@@ -235,10 +235,10 @@ def scrapmostaql(requests_session = None ,output = None):
                         print(data)
                         listResult.append(data)
                     #  listResult.append({"postId" : postId , "dateTime" : dateTime , "publisher" : publisher , "statusOfPublisher" : None ,  "webSiteName" : "mostaql" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : status , "price" : price , "number_of_offers" : number_of_offers , "url_img" : url_img})
-        print(f'Number Offer mostaql is: {len(listResult)}')
-        
+        print(f'Number Offer mostaql is: {len(listResult)}')    
     except Exception as exc:
         print(f"This Exception When Connect to Mostaql the error is : {exc}")
+    listResult.sort(key=lambda x: x['dateTime'], reverse=True)
     if isFuncInternal:
         finalRes = json.dumps(listResult)
         return (finalRes)
@@ -298,7 +298,7 @@ def scrapkafiil(requests_session = None,output = None):
          
     except Exception as exc:
          print(f"This Exception When connect To Kafiil the error is : {exc}")
-
+    listResult.sort(key=lambda x: x['dateTime'], reverse=True)
     if isFuncInternal:
         finalRes = json.dumps(listResult)
         return (finalRes)
@@ -364,9 +364,17 @@ def offersForHome():
             else:
                 output = json.loads(data)
                 allData.extend(output)
-    print( "number offers in home: ",len(allData))
+                # try : 
+                #     allData.sort(key=lambda x: x['dateTime'], reverse=True)
+                # except:
+                #     print("Key dateTime Not Found!")
+    mapAllPostId = [item for item in allData if item.get('all_post_id') != None]
+    sortedAllData = [item for item in allData if item.get('all_post_id') == None]
+    sortedAllData.sort(key=lambda x: x['dateTime'], reverse=True)
+    sortedAllData.extend(mapAllPostId)
+    print( "number offers in home: ",len(sortedAllData))
     requests_session.close()
-    return jsonify(allData)
+    return jsonify(sortedAllData)
 
 
 def checkOfferForSearchTerm(searchTerm : str ,title : str, content:str) :
@@ -431,6 +439,9 @@ def taskScrapLinksKhamsat(offer,requests_session):
          publisher = soup.find(name='a' , attrs={"class" : "sidebar_user"}).text
          statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).find(name='li').text.strip()
          dateTime = soup.findAll(name= 'div', attrs={"class" : "col-6"})[1].find(name='span').get_attribute_list('title')[0]
+         date_time_obj = datetime.strptime(dateTime, '%d/%m/%Y %H:%M:%S GMT')
+         dateTime = date_time_obj.strftime('%Y-%m-%d %H:%M:%S')
+         print(dateTime)
          myDict = {"dateTime" : dateTime ,"publisher" : publisher , "statusOfPublisher" : statusOfPublisher , "content" : content , "number_of_offers" : number_of_offers}
          offer.update(myDict)
          return offer
