@@ -7,7 +7,7 @@ from difflib import SequenceMatcher
 import textdistance
 # from multiprocessing import Process, Lock
 from flask import Flask, request, jsonify
-from datetime import datetime
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
@@ -109,7 +109,8 @@ def scrapKhamsat(requests_session = None ,output = None):
                     except Exception as exc:
                         print('%r generated an exception in route /resKham: %s' % (offer, exc))
                     else:
-                        templistResult.append(data)
+                        if len(data) != 0:
+                            templistResult.append(data)
             
                 future_to_Link_offer = {executor.submit(taskScrapLinksKhamsat, offer , requests_session): offer for offer in templistResult}
                 for future in concurrent.futures.as_completed(future_to_Link_offer):
@@ -121,7 +122,8 @@ def scrapKhamsat(requests_session = None ,output = None):
                     else:
                         payloadForSearchTerm = payloadForSearchTerm + data["postId"] + "&"
                         listResult.append(data)
-        listResult.sort(key=lambda x: x['dateTime'], reverse=True)
+        try: listResult.sort(key=lambda x: x['dateTime'], reverse=True)
+        except Exception as exc: print(f"Error occure when sorting offers khamsat, error is:{exc}")
         listResult.append({"all_post_id" : payloadForSearchTerm})
         print(f"Number Offers in khamsat: {len(listResult)}")
     except Exception as exc:
@@ -232,13 +234,15 @@ def scrapmostaql(requests_session = None ,output = None):
                         print('%r generated an exception: %s' % (offer, exc))
                     else:
                         print("***************************************************")
-                        print(data)
-                        listResult.append(data)
+                        if len(data) != 0 :
+                            print(data)
+                            listResult.append(data)
                     #  listResult.append({"postId" : postId , "dateTime" : dateTime , "publisher" : publisher , "statusOfPublisher" : None ,  "webSiteName" : "mostaql" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : status , "price" : price , "number_of_offers" : number_of_offers , "url_img" : url_img})
         print(f'Number Offer mostaql is: {len(listResult)}')    
     except Exception as exc:
         print(f"This Exception When Connect to Mostaql the error is : {exc}")
-    listResult.sort(key=lambda x: x['dateTime'], reverse=True)
+    try: listResult.sort(key=lambda x: x['dateTime'], reverse=True) 
+    except Exception as exc : print(f"Error occure when sorting offers mostaql, error is:{exc}")
     if isFuncInternal:
         finalRes = json.dumps(listResult)
         return (finalRes)
@@ -292,13 +296,15 @@ def scrapkafiil(requests_session = None,output = None):
                         print('%r generated an exception: %s' % (offer, exc))
                     else:
                         print("***************************************************")
-                        print(data)
-                        listResult.append(data)
+                        if len(data) != 0:
+                            print(data)
+                            listResult.append(data)
          print(f"Number offers in kafiil {len(listResult)}")
          
     except Exception as exc:
          print(f"This Exception When connect To Kafiil the error is : {exc}")
-    listResult.sort(key=lambda x: x['dateTime'], reverse=True)
+    try: listResult.sort(key=lambda x: x['dateTime'], reverse=True) 
+    except Exception as axc : print(f"Error occure when sorting offers kafiil, error is:{exc}")
     if isFuncInternal:
         finalRes = json.dumps(listResult)
         return (finalRes)
@@ -370,11 +376,52 @@ def offersForHome():
                 #     print("Key dateTime Not Found!")
     mapAllPostId = [item for item in allData if item.get('all_post_id') != None]
     sortedAllData = [item for item in allData if item.get('all_post_id') == None]
-    sortedAllData.sort(key=lambda x: x['dateTime'], reverse=True)
+    try: sortedAllData.sort(key=lambda x: x['dateTime'], reverse=True) 
+    except Exception as exc : print(f"Error occure when sorting offers home, error is:{exc}")
     sortedAllData.extend(mapAllPostId)
     print( "number offers in home: ",len(sortedAllData))
     requests_session.close()
     return jsonify(sortedAllData)
+
+
+@app.route('/notification', methods = ["POST", "GET"])
+def fetchNotifications():
+    requests_session = requests.Session()
+    allData = []
+    final_Data_Notification = []
+    payload = json.loads(request.data, strict = False)
+    # notif_day = payload['notif_day']
+    notif_hour = payload['notif_hour']
+    notif_min = payload['notif_min']
+    td_client = timedelta(hours=notif_hour, minutes=notif_min)
+    LISTSCRAPING = [scrapKhamsat, scrapkafiil,scrapmostaql]
+    with concurrent.futures.ThreadPoolExecutor(max_workers=30) as executor:
+        future_to_website = {executor.submit(website, requests_session, payload): website for website in LISTSCRAPING}
+        for future in concurrent.futures.as_completed(future_to_website):
+            website = future_to_website[future]
+            try:
+                data = future.result()
+            except Exception as exc:
+                print('%r generated an exception in route /notification: %s' % (website, exc))
+            else:
+                output = json.loads(data)
+                allData.extend(output)
+    allData_without_allPostId = [item for item in allData if item.get('all_post_id') == None]
+    for offer in allData_without_allPostId :
+        date_now = datetime.now().utcnow()
+        date_offer_string = offer['dateTime']
+        date_time_offer_obj = datetime.strptime(date_offer_string, '%Y-%m-%d %H:%M:%S')
+        td_all_info = date_now - date_time_offer_obj
+        days = td_all_info.days
+        hours, remainder = divmod(td_all_info.seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        td_offer = timedelta(hours=hours, minutes=minutes)
+        # print(f"num days:({days}) num hours:({hours}) num minutes:({minutes}) --> ({td_offer}) , ({td_client})")
+        if td_client >= td_offer:
+            final_Data_Notification.append(offer) 
+    print(f"Number Offers in Notification List is: {len(final_Data_Notification)}")
+    requests_session.close()
+    return jsonify(final_Data_Notification)
 
 
 def checkOfferForSearchTerm(searchTerm : str ,title : str, content:str) :
@@ -389,6 +436,9 @@ def checkOfferForSearchTerm(searchTerm : str ,title : str, content:str) :
        return True
    else:
        return False 
+
+
+
 
 @app.route('/')
 def index():
@@ -430,21 +480,23 @@ def taskKahmsatScraping(res) -> dict:
 
 
 def taskScrapLinksKhamsat(offer,requests_session):
-         myDict = {}
-         webpage2 = requests_session.get(offer["url"], headers= HEADERS)
-         soup = BeautifulSoup(webpage2.text, "lxml")
-         content = soup.find(name= 'article' , attrs={"class" : "replace_urls"}).text
-         content = " ".join(content.split())
-         number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].find(name='h3').text
-         publisher = soup.find(name='a' , attrs={"class" : "sidebar_user"}).text
-         statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).find(name='li').text.strip()
-         dateTime = soup.findAll(name= 'div', attrs={"class" : "col-6"})[1].find(name='span').get_attribute_list('title')[0]
-         date_time_obj = datetime.strptime(dateTime, '%d/%m/%Y %H:%M:%S GMT')
-         dateTime = date_time_obj.strftime('%Y-%m-%d %H:%M:%S')
-         print(dateTime)
-         myDict = {"dateTime" : dateTime ,"publisher" : publisher , "statusOfPublisher" : statusOfPublisher , "content" : content , "number_of_offers" : number_of_offers}
-         offer.update(myDict)
-         return offer
+    myDict = {}
+    try: 
+        webpage2 = requests_session.get(offer["url"], headers= HEADERS)
+        soup = BeautifulSoup(webpage2.text, "lxml")
+        content = soup.find(name= 'article' , attrs={"class" : "replace_urls"}).text
+        content = " ".join(content.split())
+        number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].find(name='h3').text
+        publisher = soup.find(name='a' , attrs={"class" : "sidebar_user"}).text
+        statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).find(name='li').text.strip()
+        dateTime = soup.findAll(name= 'div', attrs={"class" : "col-6"})[1].find(name='span').get_attribute_list('title')[0]
+        date_time_obj = datetime.strptime(dateTime, '%d/%m/%Y %H:%M:%S GMT')
+        dateTime = date_time_obj.strftime('%Y-%m-%d %H:%M:%S')
+        myDict = {"dateTime" : dateTime ,"publisher" : publisher , "statusOfPublisher" : statusOfPublisher , "content" : content , "number_of_offers" : number_of_offers}
+        offer.update(myDict)
+        return offer
+    except Exception as exc:
+                print(f"This Exception From mostaql get offer the error is : {exc}")
 
 
 def taskScrapMostaql(res, requests_session) -> dict:
