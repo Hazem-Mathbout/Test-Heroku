@@ -393,6 +393,8 @@ def fetchNotifications():
     # notif_day = payload['notif_day']
     notif_hour = payload['notif_hour']
     notif_min = payload['notif_min']
+    notif_min = 15 # <-- ovveride notif_min the client option -->
+    notif_hour = 0 # <-- ovveride notif_hour the client option -->
     td_client = timedelta(hours=notif_hour, minutes=notif_min)
     LISTSCRAPING = [scrapKhamsat, scrapkafiil,scrapmostaql]
     with concurrent.futures.ThreadPoolExecutor(max_workers=30) as executor:
@@ -417,7 +419,7 @@ def fetchNotifications():
         minutes, seconds = divmod(remainder, 60)
         td_offer = timedelta(hours=hours, minutes=minutes)
         # print(f"num days:({days}) num hours:({hours}) num minutes:({minutes}) --> ({td_offer}) , ({td_client})")
-        if td_client >= td_offer:
+        if td_client >= td_offer and days == 0:
             final_Data_Notification.append(offer) 
     print(f"Number Offers in Notification List is: {len(final_Data_Notification)}")
     requests_session.close()
