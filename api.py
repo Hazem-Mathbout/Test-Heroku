@@ -455,7 +455,7 @@ def updateInfo():
             number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].find(name='h3').text.strip()
         elif url.__contains__("mostaql.com"):
             number_of_offers = soup.find('table', attrs={"class":"table table-borderless mrg--an text-meta"}).findAll('tr')[5].findAll('td')[1].text.strip()
-            number_of_offers = f"التعليقات ({number_of_offers})"
+            number_of_offers = f"التعليقات ({number_of_offers})" 
     except Exception as exc:
         print(f"Exception occure when updated info in route /updateInfo, the error is: {exc}")
         pass
