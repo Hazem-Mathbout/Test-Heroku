@@ -439,8 +439,30 @@ def checkOfferForSearchTerm(searchTerm : str ,title : str, content:str) :
    else:
        return False 
 
-
-
+@app.route("/updateInfo", methods = ["POST" , "GET"])
+def updateInfo():
+    requests_session = requests.Session()
+    number_of_offers = None
+    payload = json.loads(request.data, strict = False)
+    url = str(payload["url"])
+    basePage = requests_session.get(url, headers=HEADERS)
+    soup = BeautifulSoup(basePage.text, "lxml")
+    try: 
+        if url.__contains__("kafiil.com"):
+            number_of_offers = soup.find(name='table' , attrs= {"class" : "info-table"}).findAll('tr')[3].findAll('td')[1].text.strip()
+        elif url.__contains__("khamsat.com"):
+            number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].find(name='h3').text.strip()
+            number_of_offers = number_of_offers.split()[1]
+            number_of_offers = number_of_offers.removeprefix('(')
+            number_of_offers = number_of_offers.removesuffix(')')
+        elif url.__contains__("mostaql.com"):
+            number_of_offers = soup.find('table', attrs={"class":"table table-borderless mrg--an text-meta"}).findAll('tr')[5].findAll('td')[1].text.strip()
+    except Exception as exc:
+        print(f"Exception occure when updated info in route /updateInfo, the error is: {exc}")
+        pass
+    print(number_of_offers)
+    requests_session.close()
+    return jsonify(number_of_offers)
 
 @app.route('/')
 def index():
@@ -489,6 +511,9 @@ def taskScrapLinksKhamsat(offer,requests_session):
         content = soup.find(name= 'article' , attrs={"class" : "replace_urls"}).text
         content = " ".join(content.split())
         number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].find(name='h3').text
+        number_of_offers = number_of_offers.split()[1]
+        number_of_offers = number_of_offers.removeprefix('(')
+        number_of_offers = number_of_offers.removesuffix(')')
         publisher = soup.find(name='a' , attrs={"class" : "sidebar_user"}).text
         statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).find(name='li').text.strip()
         dateTime = soup.findAll(name= 'div', attrs={"class" : "col-6"})[1].find(name='span').get_attribute_list('title')[0]
