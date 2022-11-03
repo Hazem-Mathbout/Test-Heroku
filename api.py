@@ -450,13 +450,12 @@ def updateInfo():
     try: 
         if url.__contains__("kafiil.com"):
             number_of_offers = soup.find(name='table' , attrs= {"class" : "info-table"}).findAll('tr')[3].findAll('td')[1].text.strip()
+            number_of_offers = f"التعليقات ({number_of_offers})"
         elif url.__contains__("khamsat.com"):
             number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].find(name='h3').text.strip()
-            # number_of_offers = number_of_offers.split()[1]
-            # number_of_offers = number_of_offers.removeprefix('(')
-            # number_of_offers = number_of_offers.removesuffix(')')
         elif url.__contains__("mostaql.com"):
             number_of_offers = soup.find('table', attrs={"class":"table table-borderless mrg--an text-meta"}).findAll('tr')[5].findAll('td')[1].text.strip()
+            number_of_offers = f"التعليقات ({number_of_offers})"
     except Exception as exc:
         print(f"Exception occure when updated info in route /updateInfo, the error is: {exc}")
         pass
