@@ -11,5 +11,11 @@
             "src": "(.*)",
             "dest": "api.py"
         }
+    ],
+    "rewrites": [
+        {
+            "source": "/(.*)",
+            "destination": "/api"
+        }
     ]
-  }
+}
