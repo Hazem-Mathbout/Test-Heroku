@@ -438,8 +438,8 @@ def fetchNotifications():
     notif_min = 45  # <-- ovveride notif_min the client option -->
     notif_hour = 0  # <-- ovveride notif_hour the client option -->
     td_client = timedelta(hours=notif_hour, minutes=notif_min)
-    # LISTSCRAPING = [scrapKhamsat, scrapkafiil,scrapmostaql]
-    LISTSCRAPING = getListScrappingForNotificationa(websiteDisabled)
+    LISTSCRAPING = [scrapKhamsat, scrapkafiil, scrapmostaql]
+    # LISTSCRAPING = getListScrappingForNotificationa(websiteDisabled)
     with concurrent.futures.ThreadPoolExecutor(max_workers=50) as executor:
         future_to_website = {executor.submit(
             website, requests_session, payload): website for website in LISTSCRAPING}
