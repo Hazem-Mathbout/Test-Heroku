@@ -435,7 +435,7 @@ def fetchNotifications():
     notif_hour = payload['notif_hour']
     notif_min = payload['notif_min']
     websiteDisabled = payload['websiteDisabled']
-    notif_min = 15  # <-- ovveride notif_min the client option -->
+    notif_min = 45  # <-- ovveride notif_min the client option -->
     notif_hour = 0  # <-- ovveride notif_hour the client option -->
     td_client = timedelta(hours=notif_hour, minutes=notif_min)
     # LISTSCRAPING = [scrapKhamsat, scrapkafiil,scrapmostaql]
