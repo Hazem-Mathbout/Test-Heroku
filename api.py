@@ -388,7 +388,7 @@ def removeUnSpportWebSiteForSearching(list_website, searchTerm):
     return list_website
 
 
-@app.route('/notification', methods=["POST", "GET"])
+@app.route("/notification", methods=["POST", "GET"])
 def fetchNotifications():
     requests_session = requests.Session()
     allData = []
