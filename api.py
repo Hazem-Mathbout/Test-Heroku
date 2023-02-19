@@ -492,185 +492,185 @@ def removeUnSpportWebSiteForSearching(list_website, searchTerm):
 #     return listSCRAPING
 
 
-def checkOfferForSearchTerm(searchTerm: str, title: str, content: str):
-    match1 = SequenceMatcher(None, searchTerm, title)
-    match2 = SequenceMatcher(None, searchTerm, content)
-    for el in searchTerm.split():
-        if (el in title or el in content):
-            return True
-    if (match1.ratio() >= 0.5 or match2.ratio() >= 0.5):
-        return True
-    if (textdistance.cosine(searchTerm, title) >= 0.5):
-        return True
-    else:
-        return False
+# def checkOfferForSearchTerm(searchTerm: str, title: str, content: str):
+#     match1 = SequenceMatcher(None, searchTerm, title)
+#     match2 = SequenceMatcher(None, searchTerm, content)
+#     for el in searchTerm.split():
+#         if (el in title or el in content):
+#             return True
+#     if (match1.ratio() >= 0.5 or match2.ratio() >= 0.5):
+#         return True
+#     if (textdistance.cosine(searchTerm, title) >= 0.5):
+#         return True
+#     else:
+#         return False
 
 
-@app.route("/updateInfo", methods=["POST", "GET"])
-def updateInfo():
-    requests_session = requests.Session()
-    number_of_offers = None
-    payload = json.loads(request.data, strict=False)
-    url = str(payload["url"])
-    basePage = requests_session.get(url, headers=HEADERS)
-    soup = BeautifulSoup(basePage.text, "lxml")
-    try:
-        if url.__contains__("kafiil.com"):
-            number_of_offers = soup.find(name='table', attrs={
-                                         "class": "info-table"}).findAll('tr')[3].findAll('td')[1].text.strip()
-            number_of_offers = f"التعليقات ({number_of_offers})"
-        elif url.__contains__("khamsat.com"):
-            number_of_offers = soup.findAll(name='div', attrs={
-                                            "class": "card-header bg-white"})[1].find(name='h3').text.strip()
-        elif url.__contains__("mostaql.com"):
-            number_of_offers = soup.find('table', attrs={
-                                         "class": "table table-borderless mrg--an text-meta"}).findAll('tr')[5].findAll('td')[1].text.strip()
-            number_of_offers = f"التعليقات ({number_of_offers})"
-    except Exception as exc:
-        print(
-            f"Exception occure when updated info in route /updateInfo, the error is: {exc}")
-        pass
-    print(number_of_offers)
-    requests_session.close()
-    return jsonify(number_of_offers)
+# @app.route("/updateInfo", methods=["POST", "GET"])
+# def updateInfo():
+#     requests_session = requests.Session()
+#     number_of_offers = None
+#     payload = json.loads(request.data, strict=False)
+#     url = str(payload["url"])
+#     basePage = requests_session.get(url, headers=HEADERS)
+#     soup = BeautifulSoup(basePage.text, "lxml")
+#     try:
+#         if url.__contains__("kafiil.com"):
+#             number_of_offers = soup.find(name='table', attrs={
+#                                          "class": "info-table"}).findAll('tr')[3].findAll('td')[1].text.strip()
+#             number_of_offers = f"التعليقات ({number_of_offers})"
+#         elif url.__contains__("khamsat.com"):
+#             number_of_offers = soup.findAll(name='div', attrs={
+#                                             "class": "card-header bg-white"})[1].find(name='h3').text.strip()
+#         elif url.__contains__("mostaql.com"):
+#             number_of_offers = soup.find('table', attrs={
+#                                          "class": "table table-borderless mrg--an text-meta"}).findAll('tr')[5].findAll('td')[1].text.strip()
+#             number_of_offers = f"التعليقات ({number_of_offers})"
+#     except Exception as exc:
+#         print(
+#             f"Exception occure when updated info in route /updateInfo, the error is: {exc}")
+#         pass
+#     print(number_of_offers)
+#     requests_session.close()
+#     return jsonify(number_of_offers)
 
 
-@app.route('/')
-def index():
-    # A welcome message to test our server
-    return "<h1>Welcome to our medium-greeting-api!</h1>"
+# @app.route('/')
+# def index():
+#     # A welcome message to test our server
+#     return "<h1>Welcome to our medium-greeting-api!</h1>"
 
 
-def taskKahmsatScraping(res) -> dict:
-    myDict = {}
-    ORIGN = f"https://khamsat.com"
-    URL = ORIGN + "/community/requests"
-    try:
-        title = res.find('h3', attrs={"class": "details-head"}).find('a').text
-        url = ORIGN + \
-            res.find('h3', attrs={"class": "details-head"}
-                     ).find('a').get_attribute_list('href')[0]
-        time = res.find('td', attrs={
-                        "class": "details-td"}).find('ul').findAll('li')[1].find('span').text.strip()
-        url_img = res.find('td', attrs={
-                           "class": "avatar-td text-center"}).find('img').get_attribute_list('src')[0]
-        postId = res.get('id').replace("forum_post-", "posts_ids%5B%5D=")
+# def taskKahmsatScraping(res) -> dict:
+#     myDict = {}
+#     ORIGN = f"https://khamsat.com"
+#     URL = ORIGN + "/community/requests"
+#     try:
+#         title = res.find('h3', attrs={"class": "details-head"}).find('a').text
+#         url = ORIGN + \
+#             res.find('h3', attrs={"class": "details-head"}
+#                      ).find('a').get_attribute_list('href')[0]
+#         time = res.find('td', attrs={
+#                         "class": "details-td"}).find('ul').findAll('li')[1].find('span').text.strip()
+#         url_img = res.find('td', attrs={
+#                            "class": "avatar-td text-center"}).find('img').get_attribute_list('src')[0]
+#         postId = res.get('id').replace("forum_post-", "posts_ids%5B%5D=")
 
-        # ####################################
+#         # ####################################
 
-        #  webpage2 = requests_session.get(url, headers= HEADERS)
-        #  soup = BeautifulSoup(webpage2.text, "lxml")
-        #  content = soup.find(name= 'article' , attrs={"class" : "replace_urls"}).text
-        #  content = " ".join(content.split())
-        #  ##################
-        # #  payloadForSearchTerm = payloadForSearchTerm + postId + "&"
-        #  ##################
-        #  number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].find(name='h3').text
-        #  publisher = soup.find(name='a' , attrs={"class" : "sidebar_user"}).text
-        #  statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).find(name='li').text.strip()
-        #  dateTime = soup.findAll(name= 'div', attrs={"class" : "col-6"})[1].find(name='span').get_attribute_list('title')[0]
-        #  myDict = {"postId" :postId , "dateTime" : dateTime ,"publisher" : publisher , "statusOfPublisher" : statusOfPublisher ,  "webSiteName" : "khamsat" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : None , "price" : None , "number_of_offers" : number_of_offers , "url_img" : url_img}
-        myDict = {"postId": postId,   "webSiteName": "khamsat", "title": title,
-                  "url": url, "time": time, "status": None, "price": None,  "url_img": url_img}
-    except Exception as exc:
-        print(f"This Exception From khamsat get offer the error is : {exc}")
-    return myDict
-
-
-def taskScrapLinksKhamsat(offer, requests_session):
-    myDict = {}
-    try:
-        webpage2 = requests_session.get(offer["url"], headers=HEADERS)
-        soup = BeautifulSoup(webpage2.text, "lxml")
-        content = soup.find(name='article', attrs={
-                            "class": "replace_urls"}).text
-        content = " ".join(content.split())
-        number_of_offers = soup.findAll(
-            name='div', attrs={"class": "card-header bg-white"})[1].find(name='h3').text
-        publisher = soup.find(name='a', attrs={"class": "sidebar_user"}).text
-        statusOfPublisher = soup.find(
-            name='ul', attrs={"class": "details-list"}).find(name='li').text.strip()
-        dateTime = soup.findAll(name='div', attrs={
-                                "class": "col-6"})[1].find(name='span').get_attribute_list('title')[0]
-        date_time_obj = datetime.strptime(dateTime, '%d/%m/%Y %H:%M:%S GMT')
-        dateTime = date_time_obj.strftime('%Y-%m-%d %H:%M:%S')
-        myDict = {"dateTime": dateTime, "publisher": publisher, "statusOfPublisher": statusOfPublisher,
-                  "content": content, "number_of_offers": number_of_offers}
-        offer.update(myDict)
-        return offer
-    except Exception as exc:
-        print(f"This Exception From mostaql get offer the error is : {exc}")
+#         #  webpage2 = requests_session.get(url, headers= HEADERS)
+#         #  soup = BeautifulSoup(webpage2.text, "lxml")
+#         #  content = soup.find(name= 'article' , attrs={"class" : "replace_urls"}).text
+#         #  content = " ".join(content.split())
+#         #  ##################
+#         # #  payloadForSearchTerm = payloadForSearchTerm + postId + "&"
+#         #  ##################
+#         #  number_of_offers = soup.findAll(name='div' , attrs={"class" : "card-header bg-white"})[1].find(name='h3').text
+#         #  publisher = soup.find(name='a' , attrs={"class" : "sidebar_user"}).text
+#         #  statusOfPublisher = soup.find(name='ul', attrs={"class" : "details-list"}).find(name='li').text.strip()
+#         #  dateTime = soup.findAll(name= 'div', attrs={"class" : "col-6"})[1].find(name='span').get_attribute_list('title')[0]
+#         #  myDict = {"postId" :postId , "dateTime" : dateTime ,"publisher" : publisher , "statusOfPublisher" : statusOfPublisher ,  "webSiteName" : "khamsat" , "title" : title , "content" : content , "url" : url , "time" : time , "status" : None , "price" : None , "number_of_offers" : number_of_offers , "url_img" : url_img}
+#         myDict = {"postId": postId,   "webSiteName": "khamsat", "title": title,
+#                   "url": url, "time": time, "status": None, "price": None,  "url_img": url_img}
+#     except Exception as exc:
+#         print(f"This Exception From khamsat get offer the error is : {exc}")
+#     return myDict
 
 
-def taskScrapMostaql(res, requests_session) -> dict:
-    myDict = {}
-    try:
-        title = res.find('a').text
-        url = res.find('a').get_attribute_list('href')[0]
-        time = res.find('time').text.strip()
-        time = "".join(time.split())
-        number_of_offers = res.find('ul').findAll('li')[2].text.strip()
-        postId = url.split('-')[0].split('/')[-1]
-        ########################################################
-        webpage2 = requests_session.get(url, headers=HEADERS)
-        soup = BeautifulSoup(webpage2.text, "lxml")
-        content = soup.find(name='div', attrs={
-                            "class": "text-wrapper-div carda__content"}).text
-        content = " ".join(content.split())
-        publisher = soup.find(name='h5', attrs={
-                              "class": "postcard__title profile__name mrg--an"}).find(name='bdi').text
-        status = soup.find(name='bdi', attrs={
-                           "class": "label label-prj-open"}).text
-        price = soup.find(name='span', attrs={"dir": "rtl"}).text
-        url_img = soup.find(name='div', attrs={
-                            "class": "profile-card--avatar dsp--f small_avatar_container"}).find('img').get_attribute_list('src')[0]
-        dateTime = soup.find(name='td', attrs={
-                             "data-type": "project-date"}).find(name='time').get_attribute_list('datetime')[0]
-        ########################################################
-        myDict = {"postId": postId, "dateTime": dateTime, "publisher": publisher, "statusOfPublisher": None,  "webSiteName": "mostaql", "title": title,
-                  "content": content, "url": url, "time": time, "status": status, "price": price, "number_of_offers": number_of_offers, "url_img": url_img}
-    except Exception as exc:
-        print(f"This Exception From mostaql get offer the error is : {exc}")
-    return myDict
+# def taskScrapLinksKhamsat(offer, requests_session):
+#     myDict = {}
+#     try:
+#         webpage2 = requests_session.get(offer["url"], headers=HEADERS)
+#         soup = BeautifulSoup(webpage2.text, "lxml")
+#         content = soup.find(name='article', attrs={
+#                             "class": "replace_urls"}).text
+#         content = " ".join(content.split())
+#         number_of_offers = soup.findAll(
+#             name='div', attrs={"class": "card-header bg-white"})[1].find(name='h3').text
+#         publisher = soup.find(name='a', attrs={"class": "sidebar_user"}).text
+#         statusOfPublisher = soup.find(
+#             name='ul', attrs={"class": "details-list"}).find(name='li').text.strip()
+#         dateTime = soup.findAll(name='div', attrs={
+#                                 "class": "col-6"})[1].find(name='span').get_attribute_list('title')[0]
+#         date_time_obj = datetime.strptime(dateTime, '%d/%m/%Y %H:%M:%S GMT')
+#         dateTime = date_time_obj.strftime('%Y-%m-%d %H:%M:%S')
+#         myDict = {"dateTime": dateTime, "publisher": publisher, "statusOfPublisher": statusOfPublisher,
+#                   "content": content, "number_of_offers": number_of_offers}
+#         offer.update(myDict)
+#         return offer
+#     except Exception as exc:
+#         print(f"This Exception From mostaql get offer the error is : {exc}")
 
 
-def taskScrapKafiil(res, requests_session, budget_min, budget_max) -> dict:
-    myDict = {}
-    price = res.findAll('p')[0].text.strip()
-    list_price = price.split('-')
-    numMin = int(list_price[0].strip().removeprefix('$'))
-    numMax = int(list_price[1].strip().removeprefix('$'))
-    budget_max = int(float(budget_max))
-    budget_min = int(float(budget_min))
-    if ((budget_min > 0 or budget_max < 10000) and not (numMin >= budget_min and numMax <= budget_max)):
-        return
-    try:
-        title = res.findAll('a')[1].text.split()
-        if (title[0] != "قيد"):
-            title = " ".join(title[1:])
-        else:
-            title = " ".join(title[2:])
-        url = res.findAll('a')[1].get_attribute_list('href')[0]
-        time = res.findAll('span')[1].text.strip()
-        status = res.findAll('span')[0].text
-        number_of_offers = res.findAll('span')[2].text.strip()
-        url_img = res.find('img').get_attribute_list('src')[0]
-        postId = url.split('-')[0].split('/')[-1]
-        #################################################
-        webpage2 = requests_session.get(url, headers=HEADERS)
-        soup = BeautifulSoup(webpage2.text, "lxml")
-        content = soup.find(name='p', attrs={"class": ""}).text
-        content = " ".join(content.split())
-        publisher = soup.find(
-            name='div', attrs={"class": "user-info-row"}).find('div').find('a').text
-        publisher = " ".join(publisher.split())
-        dateTime = soup.find(name='span', attrs={
-                             "data-toggle": "tooltip"}).get_attribute_list('title')[0]
-        myDict = {"postId": postId, "dateTime": dateTime, "publisher": publisher, "statusOfPublisher": None,  "webSiteName": "kafiil", "title": title,
-                  "content": content, "url": url, "time": time, "status": status, "price": price, "number_of_offers": number_of_offers, "url_img": url_img}
-    except Exception as exc:
-        print(f"This Exception From kafiil get offer the error is : {exc}")
-    return myDict
+# def taskScrapMostaql(res, requests_session) -> dict:
+#     myDict = {}
+#     try:
+#         title = res.find('a').text
+#         url = res.find('a').get_attribute_list('href')[0]
+#         time = res.find('time').text.strip()
+#         time = "".join(time.split())
+#         number_of_offers = res.find('ul').findAll('li')[2].text.strip()
+#         postId = url.split('-')[0].split('/')[-1]
+#         ########################################################
+#         webpage2 = requests_session.get(url, headers=HEADERS)
+#         soup = BeautifulSoup(webpage2.text, "lxml")
+#         content = soup.find(name='div', attrs={
+#                             "class": "text-wrapper-div carda__content"}).text
+#         content = " ".join(content.split())
+#         publisher = soup.find(name='h5', attrs={
+#                               "class": "postcard__title profile__name mrg--an"}).find(name='bdi').text
+#         status = soup.find(name='bdi', attrs={
+#                            "class": "label label-prj-open"}).text
+#         price = soup.find(name='span', attrs={"dir": "rtl"}).text
+#         url_img = soup.find(name='div', attrs={
+#                             "class": "profile-card--avatar dsp--f small_avatar_container"}).find('img').get_attribute_list('src')[0]
+#         dateTime = soup.find(name='td', attrs={
+#                              "data-type": "project-date"}).find(name='time').get_attribute_list('datetime')[0]
+#         ########################################################
+#         myDict = {"postId": postId, "dateTime": dateTime, "publisher": publisher, "statusOfPublisher": None,  "webSiteName": "mostaql", "title": title,
+#                   "content": content, "url": url, "time": time, "status": status, "price": price, "number_of_offers": number_of_offers, "url_img": url_img}
+#     except Exception as exc:
+#         print(f"This Exception From mostaql get offer the error is : {exc}")
+#     return myDict
+
+
+# def taskScrapKafiil(res, requests_session, budget_min, budget_max) -> dict:
+#     myDict = {}
+#     price = res.findAll('p')[0].text.strip()
+#     list_price = price.split('-')
+#     numMin = int(list_price[0].strip().removeprefix('$'))
+#     numMax = int(list_price[1].strip().removeprefix('$'))
+#     budget_max = int(float(budget_max))
+#     budget_min = int(float(budget_min))
+#     if ((budget_min > 0 or budget_max < 10000) and not (numMin >= budget_min and numMax <= budget_max)):
+#         return
+#     try:
+#         title = res.findAll('a')[1].text.split()
+#         if (title[0] != "قيد"):
+#             title = " ".join(title[1:])
+#         else:
+#             title = " ".join(title[2:])
+#         url = res.findAll('a')[1].get_attribute_list('href')[0]
+#         time = res.findAll('span')[1].text.strip()
+#         status = res.findAll('span')[0].text
+#         number_of_offers = res.findAll('span')[2].text.strip()
+#         url_img = res.find('img').get_attribute_list('src')[0]
+#         postId = url.split('-')[0].split('/')[-1]
+#         #################################################
+#         webpage2 = requests_session.get(url, headers=HEADERS)
+#         soup = BeautifulSoup(webpage2.text, "lxml")
+#         content = soup.find(name='p', attrs={"class": ""}).text
+#         content = " ".join(content.split())
+#         publisher = soup.find(
+#             name='div', attrs={"class": "user-info-row"}).find('div').find('a').text
+#         publisher = " ".join(publisher.split())
+#         dateTime = soup.find(name='span', attrs={
+#                              "data-toggle": "tooltip"}).get_attribute_list('title')[0]
+#         myDict = {"postId": postId, "dateTime": dateTime, "publisher": publisher, "statusOfPublisher": None,  "webSiteName": "kafiil", "title": title,
+#                   "content": content, "url": url, "time": time, "status": status, "price": price, "number_of_offers": number_of_offers, "url_img": url_img}
+#     except Exception as exc:
+#         print(f"This Exception From kafiil get offer the error is : {exc}")
+#     return myDict
 
 
 if __name__ == '__main__':
