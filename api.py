@@ -100,6 +100,7 @@ def scrapKhamsat(requests_session=None, output=None):
 
         results = baseSoup.findAll(name='tr', attrs={"class": "forum_post"})
         results = results[offset: offset+limit]
+        print("results khasmat befor looping is: {results}")
         if (len(results) != 0):
             with concurrent.futures.ThreadPoolExecutor(max_workers=15) as executor:
                 future_to_offer = {executor.submit(
@@ -247,6 +248,7 @@ def scrapmostaql(requests_session=None, output=None):
         sourcSoup = BeautifulSoup(sourcPage.text, "lxml")
         tempRes = sourcSoup.findAll(name='tr', attrs={"class": "project-row"})
         tempRes = tempRes[offset: offset+limit]
+        print(f"temp result length in mostaql is: {len(tempRes)}")
         if (len(tempRes) != 0):
             with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
                 future_to_offer = {executor.submit(
